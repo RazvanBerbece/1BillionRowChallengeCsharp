@@ -2,13 +2,17 @@
 
 Console.WriteLine("The 1 Billion Row Challenge - C# Edition");
 
-// Stage 1 - Reading input measurement data
+// Dependencies
 var fileManager = new NaiveFileManager();
-var measurements = fileManager.ReadFromFile("../Data/measurements.txt");
-Console.WriteLine(measurements);
 
-// Stage 2 - Reduce measurement data into desired output
+// Step 1 - Reading input measurement data
+var watch = System.Diagnostics.Stopwatch.StartNew();
+var measurements = fileManager.ReadFromFile("../Data/measurements.txt");
+watch.Stop();
+Console.WriteLine($"Read measurements - Finished in {watch.ElapsedMilliseconds}ms");
+
+// Step 2 - Reduce measurement data into desired output
 // TODO
 
-// Optional Stage 3 - Save the output to a file on disk
+// Step Stage 3 - Save the output to a file on disk
 // TODO

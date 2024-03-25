@@ -13,7 +13,8 @@ public class NaiveFileManager: IFileManager
     
     public string ReadFromFile(string filepath)
     {
-        throw new NotImplementedException();
+        var data = File.ReadAllText(filepath);
+        return data;
     }
 
     public void WriteToFile(string filepath)

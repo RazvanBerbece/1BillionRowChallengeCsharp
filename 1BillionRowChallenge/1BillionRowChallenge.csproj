@@ -12,4 +12,8 @@
       <ProjectReference Include="..\FileManager\FileManager.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="Data\.DS_Store" />
+    </ItemGroup>
+
 </Project>
