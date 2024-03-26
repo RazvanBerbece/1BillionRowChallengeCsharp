@@ -21,11 +21,16 @@ public class StreamFileManager: IFileManager
             new FileStream(filepath, FileMode.Open), 
             bufferSize: 8192);
         
-        while (reader.ReadLine() is { } line)
+        // Declare these outside to minimise amount of allocations inside the read loop
+        string? measurementLine;
+        string[] measurementTokens;
+        string stationName;
+        string stationMeasurement;
+        while ((measurementLine = reader.ReadLine()) != null)
         {
-            var measurementTokens = line.Split(";");
-            var stationName = measurementTokens[0];
-            var stationMeasurement = measurementTokens[1];
+            measurementTokens = measurementLine.Split(";");
+            stationName = measurementTokens[0];
+            stationMeasurement = measurementTokens[1];
                 
             // Add or append
             if (measurementsMap.TryGetValue(stationName, value: out _))
