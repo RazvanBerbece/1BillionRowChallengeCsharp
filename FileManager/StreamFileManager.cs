@@ -1,5 +1,5 @@
-﻿using System.Text;
-using FileManager.Interfaces;
+﻿using FileManager.Interfaces;
+using FileManager.Utils;
 
 namespace FileManager;
 
@@ -28,10 +28,11 @@ public class StreamFileManager: IFileManager
         string stationMeasurement;
         while ((measurementLine = reader.ReadLine()) != null)
         {
-            measurementTokens = measurementLine.Split(";");
+            measurementTokens = StringExtensions.SimpleSplit(measurementLine, ';');
+            // measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
             stationMeasurement = measurementTokens[1];
-                
+            
             // Add or append
             if (measurementsMap.TryGetValue(stationName, value: out _))
             {
