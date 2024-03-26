@@ -1,13 +1,15 @@
-﻿using FileManager.Interfaces;
+﻿using System.Text;
+using FileManager.Interfaces;
 
 namespace FileManager;
 
 /// <summary>
-/// Naive implementation of a file manager that provides methods to read data from a file and to write to one.
+/// Custom implementation of a file manager that provides methods to read data from a file and to write to one using
+/// more efficient streams.
 /// </summary>
-public class NaiveFileManager: IFileManager
+public class StreamFileManager: IFileManager
 {
-    public NaiveFileManager()
+    public StreamFileManager()
     {
     }
     
@@ -15,13 +17,16 @@ public class NaiveFileManager: IFileManager
     {
         var measurementsMap = new Dictionary<string, List<string>>();
         
-        var measurementLines = File.ReadLines(filepath);
-        foreach (var measurementLine in measurementLines)
+        using var reader = new StreamReader(
+            new FileStream(filepath, FileMode.Open), 
+            bufferSize: 8192);
+        
+        while (reader.ReadLine() is { } line)
         {
-            var measurementTokens = measurementLine.Split(";");
+            var measurementTokens = line.Split(";");
             var stationName = measurementTokens[0];
             var stationMeasurement = measurementTokens[1];
-            
+                
             // Add or append
             if (measurementsMap.TryGetValue(stationName, value: out _))
             {
@@ -32,7 +37,7 @@ public class NaiveFileManager: IFileManager
                 measurementsMap.Add(stationName, [stationMeasurement]);
             }
         }
-        
+
         return measurementsMap;
     }
 

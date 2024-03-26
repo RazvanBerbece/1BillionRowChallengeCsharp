@@ -3,13 +3,13 @@
 Console.WriteLine("The 1 Billion Row Challenge - C# Edition");
 
 // Dependencies
-var fileManager = new NaiveFileManager();
+var fileManager = new StreamFileManager();
 
 // Step 1 - Reading input measurement data
 var watch = System.Diagnostics.Stopwatch.StartNew();
-var measurements = fileManager.ReadFromFile("../Data/measurements.txt");
+var measurements = fileManager.ReadFromFile("Data/measurements.txt");
 watch.Stop();
-Console.WriteLine($"Read measurements - Finished in {watch.ElapsedMilliseconds}ms");
+Console.WriteLine($"Read {measurements.Count} measurements - Finished in {watch.ElapsedMilliseconds}ms");
 
 // Step 2 - Reduce measurement data into desired output
 // TODO

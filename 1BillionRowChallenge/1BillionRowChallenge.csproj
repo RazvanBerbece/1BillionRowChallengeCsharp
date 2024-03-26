@@ -16,4 +16,10 @@
       <Content Include="Data\.DS_Store" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Data\measurements.txt">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
