@@ -7,9 +7,8 @@ I got curious and wanted to see how C# would perform in this challenge. Mind tha
 For more details about the '1 Billion Row Challenge', see this very interesting blog article: https://www.morling.dev/blog/one-billion-row-challenge/.
 
 # Deliverables
-- [ ] Code solution to generate test data
 - [ ] Code solution for the challenge
-- [ ] Article
+- [ ] Documentation artifacts to support publishable article
 
 # References
 1. https://www.youtube.com/watch?v=SZ1PDS7iRU8
