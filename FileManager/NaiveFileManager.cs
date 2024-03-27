@@ -1,4 +1,4 @@
-﻿using FileManager.Interfaces;
+﻿/*using FileManager.Interfaces;
 
 namespace FileManager;
 
@@ -40,4 +40,4 @@ public class NaiveFileManager: IFileManager
     {
         throw new NotImplementedException();
     }
-}
+}*/

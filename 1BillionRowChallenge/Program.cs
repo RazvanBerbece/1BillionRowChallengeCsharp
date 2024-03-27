@@ -7,7 +7,7 @@ var fileManager = new StreamFileManager();
 
 // Step 1 - Reading input measurement data
 var watch = System.Diagnostics.Stopwatch.StartNew();
-var measurements = fileManager.ReadFromFile("Data/measurements.txt");
+var measurements = fileManager.ReadTextFromFile("Data/measurements.txt");
 watch.Stop();
 Console.WriteLine($"Read {measurements.Count} measurements - Finished in {watch.ElapsedMilliseconds}ms");
 

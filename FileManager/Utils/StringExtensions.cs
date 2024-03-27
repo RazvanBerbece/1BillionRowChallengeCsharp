@@ -2,12 +2,15 @@
 
 public static class StringExtensions
 {
-    public static string[] SimpleSplit(string str, char delimiter)
+    public static string[] SimpleSpanSplit(string str, char delimiter)
     {
-        ReadOnlySpan<char> inputSpan = str;
-        var delimiterIndex = str.IndexOf(delimiter);
-        var first = inputSpan[..delimiterIndex];
-        var second = inputSpan[(delimiterIndex + 1)..];
-        return [first.ToString(), second.ToString()];
+        var span = str.AsSpan();
+        
+        // Retrieve tokens
+        var delimiterIndex = span.IndexOf(delimiter);
+        var first = span[..delimiterIndex].ToArray();
+        var second = span[(delimiterIndex + 1)..].ToArray();
+
+        return [new string(first), new string(second)];
     }
 }
