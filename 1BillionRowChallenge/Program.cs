@@ -9,7 +9,7 @@ var fileManager = new StreamFileManager();
 var watch = System.Diagnostics.Stopwatch.StartNew();
 var measurements = fileManager.ReadTextFromFile("Data/measurements.txt");
 watch.Stop();
-Console.WriteLine($"Read {measurements.Count} measurements - Finished in {watch.ElapsedMilliseconds}ms");
+Console.WriteLine($"Read {measurements.Count} measurements - Finished in {watch.Elapsed.TotalSeconds}s");
 
 // Step 2 - Reduce measurement data into desired output
 // TODO

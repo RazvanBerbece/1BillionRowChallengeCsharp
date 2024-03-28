@@ -18,26 +18,35 @@ public class StreamFileManager: IFileManager
     public Dictionary<string, List<string>> ReadTextFromFile(string filepath)
     {
         var measurementsMap = new Dictionary<string, List<string>>(10000); // 10k unique station names, as per the spec
-
-        const int bufferSize = 1024 * 1024 * 100; // 10MB
+        
+        var delimiterSpan = ";".AsSpan();
+        const int bufferSize = 1024 * 1024 * 15;
         var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(fileStream, bufferSize: bufferSize);
         
-        // Declare these outside to minimise amount of allocations inside the read loop
         var count = 0;
-        var countResetThreshold = 10000000;
-        var millionEntryWatch = Stopwatch.StartNew();
+        var countResetThreshold = 10000000; // ~100 iterations
+        
+        // Declare these outside to minimise amount of allocations inside the read loop
         string? measurementLine;
         string[] measurementTokens;
         string stationName;
         string stationMeasurement;
+        char[][] measurementTokensChar2d;
+        var millionEntryWatch = Stopwatch.StartNew();
         while ((measurementLine = reader.ReadLine()) != null)
         {
-            var measurementLinePointer = measurementLine.AsSpan();
-            // measurementLinePointer.Split();
+            // Retrieve tokens - Station name and measurement value (CUSTOM FOR LOOP SPLIT)
+            /*measurementTokensChar2d = StringExtensions.SimpleSpanLoopBuilderSplit(measurementLine, ';');
+            stationName = new string(measurementTokensChar2d[0]);
+            stationMeasurement = new string(measurementTokensChar2d[1]);*/
+
+            // Retrieve tokens - Station name and measurement value (CUSTOM SPAN SPLIT)
+            /*measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
+            stationName = measurementTokens[0];
+            stationMeasurement = measurementTokens[1];*/
             
-            // Retrieve tokens - Station name and measurement value
-            // measurementTokens = StringExtensions.SimpleSpanSplit(measurementLine, ';');
+            // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
             measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
             stationMeasurement = measurementTokens[1];
@@ -52,8 +61,7 @@ public class StreamFileManager: IFileManager
                 measurementsMap.Add(stationName, [stationMeasurement]);
             }
             
-            count++;
-            if (count == countResetThreshold)
+            if (count++ == countResetThreshold)
             {
                 Console.WriteLine($"Processed {countResetThreshold} inputs in {millionEntryWatch.Elapsed.TotalSeconds}s");
                 millionEntryWatch.Restart();
