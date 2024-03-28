@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿/*using System.Text;
 using FileManager.Interfaces;
 using FileManager.Utils;
 
@@ -14,7 +14,7 @@ public class ByteStreamFileManager: IFileManager
     {
     }
 
-    public Dictionary<string, List<string>> ReadTextFromFile(string filepath)
+    public Dictionary<string, string[]> ReadTextFromFile(string filepath)
     {
         throw new NotImplementedException("not supported");
     }
@@ -44,4 +44,4 @@ public class ByteStreamFileManager: IFileManager
     {
         throw new NotImplementedException();
     }
-}
+}*/

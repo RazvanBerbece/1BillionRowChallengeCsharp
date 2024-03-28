@@ -4,6 +4,24 @@ namespace FileManager.Utils;
 
 public static class ByteExtensions
 {
+    public static void SplitBytesOnByteValueAndAddToMap(byte[] byteArray, byte byteToFind, Dictionary<byte[], List<byte[]>> map)
+    {
+        var spanArray = byteArray.AsSpan();
+        var delimiterIndex = Array.IndexOf(byteArray, byteToFind);
+            
+        // Map Updating
+        var stationName = spanArray[..delimiterIndex].ToArray();
+        var measurement = spanArray[(delimiterIndex + 1)..].ToArray();
+        if (map.TryGetValue(stationName, value: out _))
+        {
+            map[stationName].Add(measurement);
+        }
+        else
+        {
+            map.Add(stationName, [measurement]);
+        }
+    }
+    
     public static void SplitBatchOnByteValueAndAddToMap(byte[] byteArray, byte byteToFind, Dictionary<byte[], List<byte[]>> map)
     {
         var count = 0;

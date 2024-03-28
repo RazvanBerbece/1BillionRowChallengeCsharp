@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Diagnostics;
+﻿/*using System.Diagnostics;
 using System.Text;
 using FileManager.Interfaces;
 using FileManager.Utils;
@@ -10,24 +9,20 @@ namespace FileManager;
 /// Custom implementation of a file manager that provides methods to read data from a file and to write to one using
 /// more efficient streams.
 /// </summary>
-public class StreamFileManager: IFileManager
+public class StreamBlockFileManager: IFileManager
 {
-    public StreamFileManager()
+    public StreamBlockFileManager()
     {
     }
     
-    public Dictionary<string, ArrayList> ReadTextFromFile(string filepath)
+    public Dictionary<string, string[]> ReadTextFromFile(string filepath)
     {
-        var measurementsMap = new Dictionary<string, ArrayList>(10000); // 10k unique station names, as per the spec
+        var measurementsMap = new Dictionary<string, string[]>(10000); // 10k unique station names, as per the spec
         
         var delimiterSpan = ";".AsSpan();
         const int bufferSize = 1024 * 1024 * 10;
         var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
-        using var reader = new StreamReader(
-            fileStream, 
-            encoding: Encoding.UTF8, 
-            bufferSize: bufferSize,
-            detectEncodingFromByteOrderMarks: false);
+        using var reader = new StreamReader(fileStream, bufferSize: bufferSize);
 
         const int totalCount = 1000000000; // this won't change
         const int countResetThreshold = 10000000; // ~100 iterations
@@ -41,34 +36,39 @@ public class StreamFileManager: IFileManager
         string[] measurementTokens;
         string stationName;
         string stationMeasurement;
-        char[][] measurementTokensChar2d;
+        char[] buffer = new char[]{ };
+        reader.ReadBlock(buffer, 0, 64); // an estimation for now
+        int newlineIndex = buffer.AsSpan().IndexOf('\n');
+        int positionIndex = 0;
+        int delimiterIndex;
         var millionEntryWatch = Stopwatch.StartNew();
-        while ((measurementLine = reader.ReadLine()) != null)
+        while (newlineIndex != -1)
         {
-            // Retrieve tokens - Station name and measurement value (CUSTOM FOR LOOP SPLIT)
-            /*measurementTokensChar2d = StringExtensions.SimpleSpanLoopBuilderSplit(measurementLine, ';');
-            stationName = new string(measurementTokensChar2d[0]);
-            stationMeasurement = new string(measurementTokensChar2d[1]);*/
-
             // Retrieve tokens - Station name and measurement value (CUSTOM SPAN SPLIT)
-            /*measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
-            stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];*/
+            reader.ReadBlock(buffer, 0, newlineIndex); // an estimation for now
+            var bufferSpan = buffer.AsSpan();
+            delimiterIndex = bufferSpan.IndexOf(';');
+            stationName = bufferSpan[..delimiterIndex].ToString();
+            stationMeasurement = bufferSpan[(delimiterIndex + 1)..].ToString();
             
             // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
-            measurementTokens = measurementLine.Split(';');
+            /*measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];
+            stationMeasurement = measurementTokens[1];#1#
             
             // Update result map - Add or append
             if (measurementsMap.TryGetValue(stationName, value: out _))
             {
-                measurementsMap[stationName].Add(stationMeasurement);
+                var newIndex = measurementsMap[stationName].Length;
+                measurementsMap[stationName][newIndex] = stationMeasurement;
             }
             else
             {
                 measurementsMap.Add(stationName, [stationMeasurement]);
             }
+            
+            newlineIndex = bufferSpan[(newlineIndex + 1)..].IndexOf('\n');
+            positionIndex = newlineIndex;
             
             if (count++ == countResetThreshold)
             {
@@ -90,4 +90,4 @@ public class StreamFileManager: IFileManager
     {
         throw new NotImplementedException();
     }
-}
+}*/
