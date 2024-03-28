@@ -1,11 +1,9 @@
 namespace FileManager.Domain;
 
-public struct MeasurementData
+public struct MeasurementData()
 {
-    public string[] Measurements;
-
-    public MeasurementData()
-    {
-        Measurements = new string[10000];
-    }
+    public float Sum = 0;
+    public float Min = 0;
+    public float Max = 0;
+    public uint Count = 0;
 }

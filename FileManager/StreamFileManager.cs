@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Text;
+using FileManager.Domain;
 using FileManager.Interfaces;
-using FileManager.Utils;
 
 namespace FileManager;
 
@@ -15,13 +15,84 @@ public class StreamFileManager: IFileManager
     public StreamFileManager()
     {
     }
-    
+
+    public Dictionary<string, MeasurementData> ReadTextFromFileInCustomStruct(string filepath)
+    {
+        var measurementsMap = new Dictionary<string, MeasurementData>(10000); // 10k unique station names, as per the spec
+        
+        const int bufferSize = 25 * 1024 * 1024; // 1MB, {1 * 1024 * 1024, 1024 * 16}
+        var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+        using var reader = new StreamReader(
+            fileStream, 
+            encoding: Encoding.UTF8, 
+            bufferSize: bufferSize,
+            detectEncodingFromByteOrderMarks: false);
+
+        const int totalCount = 1000000000; // this won't change
+        const int countResetThreshold = 10000000;
+        var iterations = totalCount / countResetThreshold;
+        
+        var auxIndex = 0;
+        var count = 0;
+        
+        // Declare these outside to minimise amount of allocations inside the read loop
+        string? measurementLine;
+        string[] measurementTokens;
+        string stationName;
+        string stationMeasurement;
+        char[][] measurementTokensChar2d;
+        var millionEntryWatch = Stopwatch.StartNew();
+        while (!reader.EndOfStream)
+        {
+            measurementLine = reader.ReadLine();
+            // Retrieve tokens - Station name and measurement value (CUSTOM FOR LOOP SPLIT)
+            /*measurementTokensChar2d = StringExtensions.SimpleSpanLoopBuilderSplit(measurementLine, ';');
+            stationName = new string(measurementTokensChar2d[0]);
+            stationMeasurement = new string(measurementTokensChar2d[1]);*/
+
+            // Retrieve tokens - Station name and measurement value (CUSTOM SPAN SPLIT)
+            /*measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
+            stationName = measurementTokens[0];
+            stationMeasurement = measurementTokens[1];*/
+            
+            // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
+            // POTENTIAL SLOWDOWN - String parsing
+            measurementTokens = measurementLine.Split(';');
+            stationName = measurementTokens[0];
+            stationMeasurement = measurementTokens[1];
+            
+            // Update result map - Add new or update existing measurements
+            if (measurementsMap.TryGetValue(stationName, value: out var measurement))
+            {
+                // POTENTIAL SLOWDOWN - Float parsing
+                var parsedMeasurementValue = float.Parse(stationMeasurement);
+                measurement.Count++;
+                measurement.Sum += parsedMeasurementValue;
+                measurement.Max = Math.Max(measurement.Max, parsedMeasurementValue);
+                measurement.Min = Math.Max(measurement.Min, parsedMeasurementValue);
+            }
+            else
+            {
+                measurementsMap.Add(stationName, new MeasurementData());
+            }
+            
+            if (count++ == countResetThreshold)
+            {
+                Console.WriteLine($"Processed {countResetThreshold} inputs in {millionEntryWatch.Elapsed.TotalSeconds}s ({++auxIndex}/{iterations})");
+                millionEntryWatch.Restart();
+                count = 0;
+            }
+        }
+
+        return measurementsMap;
+    }
+
     public Dictionary<string, ArrayList> ReadTextFromFile(string filepath)
     {
         var measurementsMap = new Dictionary<string, ArrayList>(10000); // 10k unique station names, as per the spec
         
-        var delimiterSpan = ";".AsSpan();
-        const int bufferSize = 1024 * 1024 * 10;
+        // var delimiterSpan = ";".AsSpan();
+        const int bufferSize = 1 * 1024 * 1024; // 1MB, {1 * 1024 * 1024, 1024 * 16}
         var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
             fileStream, 
@@ -43,8 +114,9 @@ public class StreamFileManager: IFileManager
         string stationMeasurement;
         char[][] measurementTokensChar2d;
         var millionEntryWatch = Stopwatch.StartNew();
-        while ((measurementLine = reader.ReadLine()) != null)
+        while (!reader.EndOfStream)
         {
+            measurementLine = reader.ReadLine();
             // Retrieve tokens - Station name and measurement value (CUSTOM FOR LOOP SPLIT)
             /*measurementTokensChar2d = StringExtensions.SimpleSpanLoopBuilderSplit(measurementLine, ';');
             stationName = new string(measurementTokensChar2d[0]);
