@@ -63,19 +63,26 @@ public class StreamFileManager: IFileManager
             stationName = measurementTokens[0];
             stationMeasurement = measurementTokens[1];
             
+            // POTENTIAL SLOWDOWN - String to Float parsing
+            var parsedMeasurementValue = float.Parse(stationMeasurement);
+            
             // Update result map - Add new or update existing measurements
             if (measurementsMap.TryGetValue(stationName, value: out var measurement))
             {
-                // POTENTIAL SLOWDOWN - Float parsing
-                var parsedMeasurementValue = float.Parse(stationMeasurement);
                 measurement.Count++;
                 measurement.Sum += parsedMeasurementValue;
                 measurement.Max = Math.Max(measurement.Max, parsedMeasurementValue);
-                measurement.Min = Math.Max(measurement.Min, parsedMeasurementValue);
+                measurement.Min = Math.Min(measurement.Min, parsedMeasurementValue);
             }
             else
             {
-                measurementsMap.Add(stationName, new MeasurementData());
+                measurementsMap.Add(stationName, new MeasurementData
+                {
+                    Count = 1,
+                    Max = parsedMeasurementValue,
+                    Min = parsedMeasurementValue,
+                    Sum = parsedMeasurementValue
+                });
             }
             
             if (count++ == countResetThreshold)
