@@ -58,7 +58,7 @@ public class StreamFileManager: IFileManager
             stationMeasurement = measurementTokens[1];*/
             
             // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
-            // POTENTIAL SLOWDOWN - String parsing
+            // POTENTIAL SLOWDOWN - String parsing / splitting
             measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
             stationMeasurement = measurementTokens[1];
@@ -67,6 +67,7 @@ public class StreamFileManager: IFileManager
             var parsedMeasurementValue = float.Parse(stationMeasurement);
             
             // Update result map - Add new or update existing measurements
+            // POTENTIAL SLOWDOWN - Get in Map (for string keys)
             if (measurementsMap.TryGetValue(stationName, value: out var measurement))
             {
                 measurement.Count++;
