@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using FileManager.Domain;
 using FileManager.Interfaces;
+using FileManager.Utils;
 
 namespace FileManager;
 
@@ -19,8 +20,9 @@ public class StreamFileManager: IFileManager
     public Dictionary<string, MeasurementData> ReadTextFromFileInCustomStruct(string filepath)
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(10000); // 10k unique station names, as per the spec
-        
-        const int bufferSize = 25 * 1024 * 1024; // 1MB, {1 * 1024 * 1024, 1024 * 16}
+
+        var delimiterSpan = ";".AsSpan();
+        const int bufferSize = 10 * 1024 * 1024; // 1MB, {1 * 1024 * 1024, 1024 * 16}
         var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
             fileStream, 
@@ -153,7 +155,7 @@ public class StreamFileManager: IFileManager
         return measurementsMap;
     }
 
-    public Dictionary<byte[], List<byte[]>> ReadBytesFromFile(string filepath)
+    public Dictionary<string, MeasurementData> ReadBytesFromFile(string filepath)
     {
         throw new NotImplementedException("not supported");
     }

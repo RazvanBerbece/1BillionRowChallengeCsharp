@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using FileManager.Domain;
 
 namespace FileManager.Utils;
 
@@ -9,10 +10,10 @@ public static class ByteExtensions
     public static unsafe void SimpleFixedArrayLoopBuilderSplit(byte[] byteArray, byte delimiter, Dictionary<string, ArrayList> map)
     {
         const int totalCount = 1000000000; // this won't change
-        var count = 0;
-        var countResetThreshold = 100000;
+        const int countResetThreshold = 100000;
         var iterations = totalCount / countResetThreshold;
         
+        var count = 0;
         var auxIndex = 0;
 
         var posIndex = 0;
@@ -62,7 +63,6 @@ public static class ByteExtensions
         
         fixed (byte* pSource = byteArray)
         {
-
             var firstStr = Marshal.PtrToStringUTF8(*first);
             var secondStr = Marshal.PtrToStringUTF8(*second);
             if (map.TryGetValue(firstStr, value: out _))

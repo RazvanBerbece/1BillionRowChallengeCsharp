@@ -18,7 +18,23 @@ public class ByteStreamFileManager: IFileManager
 
     public Dictionary<string, MeasurementData> ReadTextFromFileInCustomStruct(string filepath)
     {
-        throw new NotImplementedException();
+        var measurementsMap = new Dictionary<string, MeasurementData>(10000); // 10k unique station names, as per the spec
+        
+        /*var fileStream = new FileStream(filepath, FileMode.Open);
+        using var reader = new BinaryReader(fileStream, new UTF8Encoding());
+        
+        var semicolon = Convert.ToByte(';');
+        const int chunkSize = 1 * 1024 * 1024; // read in 1MB chunks
+        // var numBatches = fileStream.Length / chunkSize;
+        var chunk = reader.ReadBytes(chunkSize);
+        
+        while(chunk.Length > 0)
+        {
+            ByteExtensions.SplitBatchOnByteValueAndAddToMap(chunk, semicolon, measurementsMap);
+            chunk = reader.ReadBytes(chunkSize);
+        }*/
+
+        return measurementsMap;
     }
 
     public Dictionary<string, ArrayList> ReadTextFromFile(string filepath)
@@ -42,12 +58,14 @@ public class ByteStreamFileManager: IFileManager
         return measurementsMap;
     }
 
-    public Dictionary<byte[], List<byte[]>> ReadBytesFromFile(string filepath)
+    public Dictionary<string, MeasurementData> ReadBytesFromFile(string filepath)
     {
-        var measurementsMap = new Dictionary<byte[], List<byte[]>>(10000); // 10k unique station names, as per the spec
+        var measurementsMap = new Dictionary<string, MeasurementData>(10000); // 10k unique station names, as per the spec
         
-        var fileStream = new FileStream(filepath, FileMode.Open);
-        using var reader = new BinaryReader(fileStream, new UTF8Encoding());
+        var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
+        using var reader = new BinaryReader(
+            fileStream, 
+            new UTF8Encoding());
         
         var semicolon = Convert.ToByte(';');
         const int chunkSize = 1 * 1024 * 1024; // read in 1MB chunks
@@ -56,7 +74,7 @@ public class ByteStreamFileManager: IFileManager
         
         while(chunk.Length > 0)
         {
-            ByteExtensions.SplitBatchOnByteValueAndAddToMap(chunk, semicolon, measurementsMap);
+            //ByteExtensions.SplitBatchOnByteValueAndAddToMap(chunk, semicolon, measurementsMap);
             chunk = reader.ReadBytes(chunkSize);
         }
 
