@@ -1,4 +1,6 @@
-﻿namespace FileManager.Utils;
+﻿using FileManager.Domain;
+
+namespace FileManager.Utils;
 
 public static class StringExtensions
 {
@@ -34,7 +36,7 @@ public static class StringExtensions
         return [first, second];
     }
     
-    public static string[] SimpleSpanIndexSplit(string str, ReadOnlySpan<char> delimiter)
+    public static SplitTokens SimpleSpanIndexSplit(string str, ReadOnlySpan<char> delimiter)
     {
         var span = str.AsSpan();
         
@@ -43,6 +45,10 @@ public static class StringExtensions
         var first = span[..delimiterIndex];
         var second = span[(delimiterIndex + 1)..];
 
-        return [first.ToString(), second.ToString()];
+        return new SplitTokens
+        {
+            First = first.ToString(),
+            Second = second.ToString()
+        };
     }
 }

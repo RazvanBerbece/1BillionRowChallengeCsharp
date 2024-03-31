@@ -30,6 +30,7 @@ public class StreamFileManager: IFileManager
             bufferSize: bufferSize,
             detectEncodingFromByteOrderMarks: false);
 
+        const bool debug = true;
         const int totalCount = 1000000000; // this won't change
         const int countResetThreshold = 10000000;
         var iterations = totalCount / countResetThreshold;
@@ -39,7 +40,7 @@ public class StreamFileManager: IFileManager
         
         // Declare these outside to minimise amount of allocations inside the read loop
         string? measurementLine;
-        string[] measurementTokens;
+        SplitTokens measurementTokens;
         string stationName;
         string stationMeasurement;
         char[][] measurementTokensChar2d;
@@ -53,15 +54,15 @@ public class StreamFileManager: IFileManager
             stationMeasurement = new string(measurementTokensChar2d[1]);*/
 
             // Retrieve tokens - Station name and measurement value (CUSTOM SPAN SPLIT)
-            /*measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
-            stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];*/
+            measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
+            stationName = measurementTokens.First;
+            stationMeasurement = measurementTokens.Second;
             
             // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
             // POTENTIAL SLOWDOWN - String parsing / splitting
-            measurementTokens = measurementLine.Split(';');
+            /*measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];
+            stationMeasurement = measurementTokens[1];*/
             
             // POTENTIAL SLOWDOWN - String to Float parsing
             var parsedMeasurementValue = float.Parse(stationMeasurement);
@@ -85,6 +86,8 @@ public class StreamFileManager: IFileManager
                     Sum = parsedMeasurementValue
                 });
             }
+
+            if (!debug) continue;
             
             if (count++ == countResetThreshold)
             {
@@ -102,6 +105,7 @@ public class StreamFileManager: IFileManager
         var measurementsMap = new Dictionary<string, ArrayList>(10000); // 10k unique station names, as per the spec
         
         // var delimiterSpan = ";".AsSpan();
+        var delimiterSpan = ";".AsSpan();
         const int bufferSize = 1 * 1024 * 1024; // 1MB, {1 * 1024 * 1024, 1024 * 16}
         var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
@@ -119,7 +123,7 @@ public class StreamFileManager: IFileManager
         
         // Declare these outside to minimise amount of allocations inside the read loop
         string? measurementLine;
-        string[] measurementTokens;
+        SplitTokens measurementTokens;
         string stationName;
         string stationMeasurement;
         char[][] measurementTokensChar2d;
@@ -133,14 +137,14 @@ public class StreamFileManager: IFileManager
             stationMeasurement = new string(measurementTokensChar2d[1]);*/
 
             // Retrieve tokens - Station name and measurement value (CUSTOM SPAN SPLIT)
-            /*measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
-            stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];*/
+            measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
+            stationName = measurementTokens.First;
+            stationMeasurement = measurementTokens.Second;
             
             // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
-            measurementTokens = measurementLine.Split(';');
+            /*measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];
+            stationMeasurement = measurementTokens[1];*/
             
             // Update result map - Add or append
             if (measurementsMap.TryGetValue(stationName, value: out _))
