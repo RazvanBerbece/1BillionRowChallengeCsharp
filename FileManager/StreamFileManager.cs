@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text;
 using FileManager.Domain;
 using FileManager.Interfaces;
@@ -17,12 +18,16 @@ public class StreamFileManager: IFileManager
     {
     }
 
+    public Dictionary<ByteSpan, MeasurementData> ReadBytesFromFileWithCustomSpanKeys(string filepath)
+    {
+        throw new NotImplementedException();
+    }
+
     public Dictionary<string, MeasurementData> ReadTextFromFileInCustomStruct(string filepath)
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(10000); // 10k unique station names, as per the spec
-
-        var delimiterSpan = ";".AsSpan();
-        const int bufferSize = 10 * 1024 * 1024; // 1MB, {1 * 1024 * 1024, 1024 * 16}
+        
+        const int bufferSize = 10 * 1024 * 1024;
         var fileStream = new FileStream(filepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
             fileStream, 
@@ -30,7 +35,7 @@ public class StreamFileManager: IFileManager
             bufferSize: bufferSize,
             detectEncodingFromByteOrderMarks: false);
 
-        const bool debug = true;
+        var debug = false;
         const int totalCount = 1000000000; // this won't change
         const int countResetThreshold = 10000000;
         var iterations = totalCount / countResetThreshold;
@@ -40,37 +45,43 @@ public class StreamFileManager: IFileManager
         
         // Declare these outside to minimise amount of allocations inside the read loop
         string? measurementLine;
-        SplitTokens measurementTokens;
+        string[] measurementTokens;
+        SplitTokens measurementTokensCustom;
         string stationName;
         string stationMeasurement;
         char[][] measurementTokensChar2d;
         var millionEntryWatch = Stopwatch.StartNew();
         while (!reader.EndOfStream)
         {
+            // POTENTIAL SLOWDOWN - String constructor alloc
             measurementLine = reader.ReadLine();
+            
             // Retrieve tokens - Station name and measurement value (CUSTOM FOR LOOP SPLIT)
             /*measurementTokensChar2d = StringExtensions.SimpleSpanLoopBuilderSplit(measurementLine, ';');
             stationName = new string(measurementTokensChar2d[0]);
             stationMeasurement = new string(measurementTokensChar2d[1]);*/
 
             // Retrieve tokens - Station name and measurement value (CUSTOM SPAN SPLIT)
-            measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
+            /*measurementTokensCustom = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
             stationName = measurementTokens.First;
-            stationMeasurement = measurementTokens.Second;
+            stationMeasurement = measurementTokens.Second;*/
             
             // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
             // POTENTIAL SLOWDOWN - String parsing / splitting
-            /*measurementTokens = measurementLine.Split(';');
+            measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];*/
+            stationMeasurement = measurementTokens[1];
             
             // POTENTIAL SLOWDOWN - String to Float parsing
             var parsedMeasurementValue = float.Parse(stationMeasurement);
             
             // Update result map - Add new or update existing measurements
-            // POTENTIAL SLOWDOWN - Get in Map (for string keys)
-            if (measurementsMap.TryGetValue(stationName, value: out var measurement))
+            // POTENTIAL SLOWDOWN - Get in Map (for string keys) -- WIP
+            // USED OPTIMISATION: CollectionsMarshal.GetValueRefOrAddDefault to return a reference to an existing / newly created value in the dict
+            ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, stationName, out var exists);
+            if (exists)
             {
+                // The entry existed already, so update the existing ref
                 measurement.Count++;
                 measurement.Sum += parsedMeasurementValue;
                 measurement.Max = Math.Max(measurement.Max, parsedMeasurementValue);
@@ -78,23 +89,18 @@ public class StreamFileManager: IFileManager
             }
             else
             {
-                measurementsMap.Add(stationName, new MeasurementData
-                {
-                    Count = 1,
-                    Max = parsedMeasurementValue,
-                    Min = parsedMeasurementValue,
-                    Sum = parsedMeasurementValue
-                });
+                // A new entry was created and the reference returned
+                measurement.Count = 1;
+                measurement.Sum = parsedMeasurementValue;
+                measurement.Max = parsedMeasurementValue;
+                measurement.Min = parsedMeasurementValue;
             }
 
-            if (!debug) continue;
+            if (count++ != countResetThreshold || !debug) continue;
             
-            if (count++ == countResetThreshold)
-            {
-                Console.WriteLine($"Processed {countResetThreshold} inputs in {millionEntryWatch.Elapsed.TotalSeconds}s ({++auxIndex}/{iterations})");
-                millionEntryWatch.Restart();
-                count = 0;
-            }
+            Console.WriteLine($"Processed {countResetThreshold} inputs in {millionEntryWatch.Elapsed.TotalSeconds}s ({++auxIndex}/{iterations})");
+            millionEntryWatch.Restart();
+            count = 0;
         }
 
         return measurementsMap;
