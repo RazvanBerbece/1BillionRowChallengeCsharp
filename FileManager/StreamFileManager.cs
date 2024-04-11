@@ -17,11 +17,6 @@ public class StreamFileManager: IFileManager
     {
     }
 
-    public Dictionary<ByteSpan, MeasurementData> ReadBytesFromFileWithCustomSpanKeys(string filepath)
-    {
-        throw new NotImplementedException();
-    }
-
     public Dictionary<string, MeasurementData> ReadTextFromFileInCustomStruct(string filepath)
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(10000); // 10k unique station names, as per the spec

@@ -37,14 +37,13 @@ public class ReadStrategiesBenchmarks
 
         try
         {
-            var inputByte = reader.ReadByte();
-            measurementLineBytes[index++] = inputByte;
-            while(inputByte > 0)
+            while(reader.PeekChar() != -1)
             {
-                inputByte = reader.ReadByte();
+                var inputByte = reader.ReadByte();
                 if (inputByte == 10)
                 {
-                    // newline, this would now pass the bytes in measurementLineBytes to the split code
+                    // newline found, this would now pass the bytes in measurementLineBytes to the split code
+                    // var tokens = split(measurementLineBytes) etc.
                     measurementLineBytes.Clear();
                     continue;
                 }
@@ -58,34 +57,26 @@ public class ReadStrategiesBenchmarks
     }
     
     [Benchmark]
-    public void Read_Bytes_BinaryReader_Chunk_LineByLine()
+    public void Read_Bytes_BinaryReader_Chunks_LineByLine()
     {
         using var fileStream = new FileStream(Filepath, FileMode.Open);
         using var reader = new BinaryReader(fileStream, new UTF8Encoding());
+        var streamTotalLength = reader.BaseStream.Length;
         reader.BaseStream.Position = 0;
         
-        var index = 0;
-        Span<byte> measurementLineBytes = stackalloc byte[120]; // 10 chars for temperature = 20 bytes + 100 bytes for station name = 120 bytes
-        
-        try
+        Span<byte> finalChunk = stackalloc byte[64];
+
+        var buf = reader.ReadBytes(ChunkSize);
+        buf.AsSpan().CopyTo(finalChunk);
+        while (reader.BaseStream.Position != streamTotalLength)
         {
-            var inputByte = reader.ReadByte();
-            measurementLineBytes[index++] = inputByte;
-            while(inputByte > 0)
-            {
-                inputByte = reader.ReadByte();
-                if (inputByte == 10)
-                {
-                    // newline, this would now pass the bytes in measurementLineBytes to the split code
-                    measurementLineBytes.Clear();
-                    continue;
-                }
-                measurementLineBytes[index++] = inputByte;
-            }
-        }
-        catch (Exception)
-        {
-            // ignored
+            buf = reader.ReadBytes(ChunkSize);
+            
+            // Ensure measurement integrity by extending chunk up to first next newline
+            // TODO
+            
+            // Split chunk by newline delimiter
+            // TODO
         }
     }
 }

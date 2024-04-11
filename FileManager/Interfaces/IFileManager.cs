@@ -5,7 +5,6 @@ namespace FileManager.Interfaces;
 
 public interface IFileManager
 {
-    Dictionary<ByteSpan, MeasurementData> ReadBytesFromFileWithCustomSpanKeys(string filepath);
     Dictionary<string, MeasurementData> ReadTextFromFileInCustomStruct(string filepath);
     Dictionary<string, ArrayList> ReadTextFromFile(string filepath);
     Dictionary<string, MeasurementData> ReadBytesFromFile(string filepath);
