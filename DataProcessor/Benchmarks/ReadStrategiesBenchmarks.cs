@@ -1,7 +1,7 @@
 using System.Text;
 using BenchmarkDotNet.Attributes;
 
-namespace FileManager.Benchmarks;
+namespace DataProcessor.Benchmarks;
 
 [MemoryDiagnoser(false)]
 public class ReadStrategiesBenchmarks

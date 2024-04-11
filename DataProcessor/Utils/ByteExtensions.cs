@@ -2,7 +2,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace FileManager.Utils;
+namespace DataProcessor.Utils;
 
 public static class ByteExtensions
 {

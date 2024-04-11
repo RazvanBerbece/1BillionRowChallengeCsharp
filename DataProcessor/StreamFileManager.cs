@@ -2,10 +2,10 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using FileManager.Domain;
-using FileManager.Interfaces;
+using DataProcessor.Domain;
+using DataProcessor.Interfaces;
 
-namespace FileManager;
+namespace DataProcessor;
 
 /// <summary>
 /// Custom implementation of a file manager that provides methods to read data from a file and to write to one using

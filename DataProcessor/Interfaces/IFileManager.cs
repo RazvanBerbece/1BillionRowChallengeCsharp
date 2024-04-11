@@ -1,7 +1,7 @@
 using System.Collections;
-using FileManager.Domain;
+using DataProcessor.Domain;
 
-namespace FileManager.Interfaces;
+namespace DataProcessor.Interfaces;
 
 public interface IFileManager
 {

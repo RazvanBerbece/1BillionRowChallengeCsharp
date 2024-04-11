@@ -1,7 +1,7 @@
 using BenchmarkDotNet.Attributes;
-using FileManager.Domain;
+using DataProcessor.Domain;
 
-namespace FileManager.Benchmarks;
+namespace DataProcessor.Benchmarks;
 
 [MemoryDiagnoser(false)]
 public class SplitMeasurementLineStrategiesBenchmarks

@@ -1,9 +1,9 @@
 ﻿/*using System.Diagnostics;
 using System.Text;
-using FileManager.Interfaces;
-using FileManager.Utils;
+using DataProcessor.Interfaces;
+using DataProcessor.Utils;
 
-namespace FileManager;
+namespace DataProcessor;
 
 /// <summary>
 /// Custom implementation of a file manager that provides methods to read data from a file and to write to one using

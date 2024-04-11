@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FileManager\FileManager.csproj" />
+      <ProjectReference Include="..\DataProcessor\DataProcessor.csproj" />
     </ItemGroup>
 
     <ItemGroup>

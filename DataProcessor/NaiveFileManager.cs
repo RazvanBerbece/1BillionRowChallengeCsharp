@@ -1,6 +1,6 @@
-﻿/*using FileManager.Interfaces;
+﻿/*using DataProcessor.Interfaces;
 
-namespace FileManager;
+namespace DataProcessor;
 
 /// <summary>
 /// Naive implementation of a file manager that provides methods to read data from a file and to write to one.

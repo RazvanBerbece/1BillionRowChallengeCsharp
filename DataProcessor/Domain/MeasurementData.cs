@@ -1,4 +1,4 @@
-namespace FileManager.Domain;
+namespace DataProcessor.Domain;
 
 public struct MeasurementData()
 {
