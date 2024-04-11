@@ -12,7 +12,7 @@ public class SplitMeasurementLineStrategiesBenchmarks
     private static readonly byte DelimiterByte = 0x3B;
     
     [Benchmark]
-    public string[] Split_String_DefaultStd()
+    public string[] Split_String_DefaultStd_ReturnSliceStrings()
     {
         var tokens = TestString.Split(';');
         var first = tokens[0];
@@ -21,7 +21,7 @@ public class SplitMeasurementLineStrategiesBenchmarks
     }
     
     [Benchmark]
-    public SplitTokens Split_String_Span_IndexOfCharSlice()
+    public SplitTokens Split_String_Span_IndexOf_ReturnSliceStrings()
     {
         var span = TestString.AsSpan();
         var delimiter = ";".AsSpan();
@@ -39,7 +39,7 @@ public class SplitMeasurementLineStrategiesBenchmarks
     }
     
     [Benchmark]
-    public SplitBytesTokens Split_Bytes_IndexOfSlice()
+    public SplitBytesTokens Split_Bytes_IndexOf_ReturnSliceBytes()
     {
         var delimiterIndex = Array.IndexOf(TestBytes, DelimiterByte);
         return new SplitBytesTokens
@@ -50,7 +50,7 @@ public class SplitMeasurementLineStrategiesBenchmarks
     }
     
     [Benchmark]
-    public SplitBytesTokens Split_Bytes_Span_IndexOfSlice()
+    public SplitBytesTokens Split_Bytes_Span_IndexOf_ReturnSliceBytes()
     {
         var span = TestBytes.AsSpan();
         var delimiterIndex = span.IndexOf(DelimiterByte);
