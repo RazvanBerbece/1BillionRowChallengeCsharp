@@ -1,5 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-using FileManager;
 using FileManager.Benchmarks;
 
 Console.WriteLine("The 1 Billion Row Challenge - C# Edition");
