@@ -4,10 +4,12 @@ using FileManager.Domain;
 namespace FileManager.Benchmarks;
 
 [MemoryDiagnoser(false)]
-public class SplitStrategiesBenchmarks
+public class SplitMeasurementLineStrategiesBenchmarks
 {
 
     private static readonly string TestString = "TestCityLocation;-12.53";
+    private static readonly byte[] TestBytes = "TestCityLocation;-12.53"u8.ToArray();
+    private static readonly byte DelimiterByte = 0x3B;
     
     [Benchmark]
     public string[] Split_String_DefaultStd()
@@ -33,6 +35,29 @@ public class SplitStrategiesBenchmarks
         {
             First = first.ToString(),
             Second = second.ToString()
+        };
+    }
+    
+    [Benchmark]
+    public SplitBytesTokens Split_Bytes_IndexOfSlice()
+    {
+        var delimiterIndex = Array.IndexOf(TestBytes, DelimiterByte);
+        return new SplitBytesTokens
+        {
+            First = TestBytes[..delimiterIndex].ToArray(),
+            Second = TestBytes[(delimiterIndex + 1)..].ToArray()
+        };
+    }
+    
+    [Benchmark]
+    public SplitBytesTokens Split_Bytes_Span_IndexOfSlice()
+    {
+        var span = TestBytes.AsSpan();
+        var delimiterIndex = span.IndexOf(DelimiterByte);
+        return new SplitBytesTokens
+        {
+            First = span[..delimiterIndex].ToArray(),
+            Second = span[(delimiterIndex + 1)..].ToArray()
         };
     }
 }

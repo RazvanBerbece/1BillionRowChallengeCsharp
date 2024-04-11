@@ -129,7 +129,7 @@ public class StreamFileManager: IFileManager
         
         // Declare these outside to minimise amount of allocations inside the read loop
         string? measurementLine;
-        SplitTokens measurementTokens;
+        string[] measurementTokens;
         string stationName;
         string stationMeasurement;
         char[][] measurementTokensChar2d;
@@ -143,14 +143,14 @@ public class StreamFileManager: IFileManager
             stationMeasurement = new string(measurementTokensChar2d[1]);*/
 
             // Retrieve tokens - Station name and measurement value (CUSTOM SPAN SPLIT)
-            measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
+            /*measurementTokens = StringExtensions.SimpleSpanIndexSplit(measurementLine, delimiterSpan);
             stationName = measurementTokens.First;
-            stationMeasurement = measurementTokens.Second;
+            stationMeasurement = measurementTokens.Second;*/
             
             // Retrieve tokens - Station name and measurement value (STANDARD SPLIT)
-            /*measurementTokens = measurementLine.Split(';');
+            measurementTokens = measurementLine.Split(';');
             stationName = measurementTokens[0];
-            stationMeasurement = measurementTokens[1];*/
+            stationMeasurement = measurementTokens[1];
             
             // Update result map - Add or append
             if (measurementsMap.TryGetValue(stationName, value: out _))
