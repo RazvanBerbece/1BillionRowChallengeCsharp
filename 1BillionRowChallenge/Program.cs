@@ -4,8 +4,8 @@ using DataProcessor.Benchmarks;
 Console.WriteLine("The 1 Billion Row Challenge - C# Edition");
 
 // Run Benchmarks
-BenchmarkRunner.Run<SplitMeasurementLineStrategiesBenchmarks>();
-// BenchmarkRunner.Run<ReadStrategiesBenchmarks>();
+// BenchmarkRunner.Run<SplitMeasurementLineStrategiesBenchmarks>();
+BenchmarkRunner.Run<ReadStrategiesBenchmarks>();
 
 /*// Dependencies
 var fileManager = new StreamFileManager();
