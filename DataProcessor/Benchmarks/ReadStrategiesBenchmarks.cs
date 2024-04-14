@@ -9,27 +9,15 @@ namespace DataProcessor.Benchmarks;
 [MemoryDiagnoser(false)]
 public class ReadStrategiesBenchmarks
 {
-    private static readonly string Filepath = "../../../../../../../Data/measurements_subset.txt";
-    
+    private const string Filepath = "../../../../../../../Data/measurements_subset.txt";
+
     // Dynamic Params
-    [Params(1024,
-        1024 * 5,
-        1024 * 10,
-        1024 * 25,
-        1024 * 50,
-        1 * 1024 * 1024, 
-        5 * 1024 * 1024, 
-        10 * 1024 * 1024, 
-        25 * 1024 * 1024, 
-        50 * 1024 * 1024,
-        100 * 1024 * 1024,
-        150 * 1024 * 1024)]
-    public int BufferSize;
+    private const int BufferSize = 1024 * 10; // 10MB gave the best results
+
+    /*[Params(16, 32, 64, 128, 512)]
+    public int ChunkSize;*/
     
-    [Params(16, 32, 64, 128, 512)]
-    public int ChunkSize;
-    
-    /*[Benchmark]
+    [Benchmark]
     public void Read_Text_StreamReader_LineByLine()
     {
         using var fileStream = new FileStream(Filepath, FileMode.Open);
@@ -42,7 +30,7 @@ public class ReadStrategiesBenchmarks
         {
             var line = reader.ReadLine().AsSpan();
         }
-    }*/
+    }
     
     /*[Benchmark]
     public async Task Read_Text_StreamReader_Async_LineByLine()
@@ -153,13 +141,13 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine()
     {
-        await using var stream = File.OpenRead(Filepath);
+        await using var stream = new FileStream(Filepath, FileMode.Open);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
         while (true)
         {
-            var read = await reader.ReadAsync();
-            var buffer = read.Buffer;
-            while (TryReadLine(ref buffer, out ReadOnlySequence<byte> sequence))
+            var readResult = await reader.ReadAsync();
+            var buffer = readResult.Buffer;
+            while (TryReadLine(ref buffer, out var sequence))
             {
                 // send to split code
                 // Encoding.Default.GetString(sequence) is the text string of the measurement line
@@ -167,7 +155,7 @@ public class ReadStrategiesBenchmarks
             }
 
             reader.AdvanceTo(buffer.Start, buffer.End);
-            if (read.IsCompleted)
+            if (readResult.IsCompleted)
             {
                 break;
             }
