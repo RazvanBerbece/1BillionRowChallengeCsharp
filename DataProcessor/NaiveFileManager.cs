@@ -1,4 +1,6 @@
-﻿/*using DataProcessor.Interfaces;
+﻿using System.Collections;
+using DataProcessor.Domain;
+using DataProcessor.Interfaces;
 
 namespace DataProcessor;
 
@@ -36,8 +38,23 @@ public class NaiveFileManager: IFileManager
         return measurementsMap;
     }
 
+    public Dictionary<string, MeasurementData> ReadTextFromFileInCustomStruct(string filepath)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Dictionary<string, ArrayList> ReadTextFromFile(string filepath)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Dictionary<string, MeasurementData> ReadBytesFromFile(string filepath)
+    {
+        throw new NotImplementedException();
+    }
+
     public void WriteToFile(string filepath)
     {
         throw new NotImplementedException();
     }
-}*/
+}
