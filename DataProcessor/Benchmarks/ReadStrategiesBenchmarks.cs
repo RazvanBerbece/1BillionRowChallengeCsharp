@@ -3,7 +3,6 @@ using System.Text;
 using BenchmarkDotNet.Attributes;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
-using System.IO.Pipes;
 
 namespace DataProcessor.Benchmarks;
 
@@ -19,7 +18,7 @@ public class ReadStrategiesBenchmarks
     /*[Params(16, 32, 64, 128, 512)]
     public int ChunkSize;*/
     
-    [Benchmark]
+    /*[Benchmark]
     public void Read_Text_StreamReader_LineByLine()
     {
         using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
@@ -32,7 +31,7 @@ public class ReadStrategiesBenchmarks
         {
             var line = reader.ReadLine().AsSpan();
         }
-    }
+    }*/
     
     /*[Benchmark]
     public void Read_Text_Parallel_ForEach_LineByLine()
@@ -103,7 +102,7 @@ public class ReadStrategiesBenchmarks
         }
     }*/
     
-    [Benchmark]
+    /*[Benchmark]
     public void Read_Bytes_BinaryReader_IteratorBuilder_LineByLine()
     {
         using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
@@ -136,7 +135,7 @@ public class ReadStrategiesBenchmarks
         {
             // ignored
         }
-    }
+    }*/
     
     /*[Benchmark]
     public void Read_Bytes_BinaryReader_Chunks_LineByLine()
@@ -163,6 +162,7 @@ public class ReadStrategiesBenchmarks
         }
     }*/
     
+    /*
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine()
     {
@@ -185,25 +185,24 @@ public class ReadStrategiesBenchmarks
                 break;
             }
         }
-    }
+    }*/
     
     [Benchmark]
     public void Read_Bytes_Chunks_Seek_To_Newlines()
     {
-        using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
-        using var reader = new BinaryReader(fileStream, new UTF8Encoding());
-        var streamSize = fileStream.Length;
-        reader.BaseStream.Position = 0;
+        using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        var streamSize = stream.Length;
+        stream.Position = 0;
         
         // \n as span
         const byte newlineDelimiter = (byte)'\n';
         
         // allocate 223 bytes in order to ensure the lazy capture of a newline (abusing specs here a bit)
         Span<byte> buffer = stackalloc byte[223];
-        
-        while (reader.Read(buffer) > 0)
+
+        while (stream.Read(buffer) > 0)
         {
-            // 222 bytes in buffer
+            // 223 bytes in buffer
             
             // look for next nearest newline from buffer start to end
             var nextNewlinePosInChunk = buffer.IndexOf(newlineDelimiter);
@@ -213,20 +212,17 @@ public class ReadStrategiesBenchmarks
             // Console.WriteLine(Encoding.Default.GetString(measurementLine));
             
             // if EOF, then break early
-            if (reader.BaseStream.Position == streamSize)
+            if (stream.Position == streamSize)
             {
                 break;
             }
             
-            // if currently on a newline, then don't seek
-            var nextNewlinePosition = reader.BaseStream.Position - (buffer.Length - nextNewlinePosInChunk - 1);
-            if (reader.BaseStream.Position == nextNewlinePosition)
-            {
-                continue;
-            }
-            reader.BaseStream.Seek(
-                nextNewlinePosition, 
-                SeekOrigin.Begin);
+            stream.Position -= 222 - nextNewlinePosInChunk;
+            /*
+             Drop the call to Seek, change the position directly (improved by ~1ms)
+             stream.Seek(
+                stream.Position - (222 - nextNewlinePosInChunk),  // 223 - nextNewlinePosInChunk - 1 
+                SeekOrigin.Begin);*/
         }
     }
     
