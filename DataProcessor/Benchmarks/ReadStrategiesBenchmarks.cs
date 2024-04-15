@@ -14,8 +14,7 @@ public class ReadStrategiesBenchmarks
     private const string DataSubsetFilepath = "../../../../../../../Data/measurements_subset.txt";
 
     // Dynamic Params
-    [Params(5120)]
-    public int BufferSize;
+    private const int BufferSize = 5120; // 5120 bytes gave the best results so far
 
     /*[Params(16, 32, 64, 128, 512)]
     public int ChunkSize;*/
@@ -104,17 +103,17 @@ public class ReadStrategiesBenchmarks
         }
     }*/
     
-    /*[Benchmark]
+    [Benchmark]
     public void Read_Bytes_BinaryReader_IteratorBuilder_LineByLine()
     {
-        using var fileStream = new FileStream(Filepath, FileMode.Open, FileAccess.Read);
+        using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
         using var reader = new BinaryReader(fileStream, new UTF8Encoding());
         reader.BaseStream.Position = 0;
         
         var index = 0;
         // 2 bytes for delimiter +
         // 20 bytes max for recorded temperature +
-        // 200 bytes max for station name = 222 bytes
+        // 200 bytes max for station name (100 characters) = 222 bytes
         Span<byte> measurementLineBytes = stackalloc byte[222];
 
         try
@@ -137,7 +136,7 @@ public class ReadStrategiesBenchmarks
         {
             // ignored
         }
-    }*/
+    }
     
     /*[Benchmark]
     public void Read_Bytes_BinaryReader_Chunks_LineByLine()
@@ -199,29 +198,35 @@ public class ReadStrategiesBenchmarks
         // \n as span
         const byte newlineDelimiter = (byte)'\n';
         
-        Span<byte> buffer = stackalloc byte[222]; // use 222 in order to lazy capture a newline (abusing specs here a bit)
-        Span<byte> measurementLineBytes = stackalloc byte[222];
-
-        long lastNewlineInStream;
+        // allocate 223 bytes in order to ensure the lazy capture of a newline (abusing specs here a bit)
+        Span<byte> buffer = stackalloc byte[223];
+        
         while (reader.Read(buffer) > 0)
         {
-            // 222 / 64 bytes in buffer
+            // 222 bytes in buffer
+            
             // look for next nearest newline from buffer start to end
             var nextNewlinePosInChunk = buffer.IndexOf(newlineDelimiter);
-            /*Console.WriteLine(nextNewlinePosInChunk);
-            Console.WriteLine(Encoding.Default.GetString(buffer[..nextNewlinePosInChunk]));*/
-            buffer[..nextNewlinePosInChunk].CopyTo(measurementLineBytes);
             
-            // measurementLineBytes available to split here
-            // Console.WriteLine(Encoding.Default.GetString(measurementLineBytes));
+            // measurementLine available to split here
+            var measurementLine = buffer[..nextNewlinePosInChunk];
+            // Console.WriteLine(Encoding.Default.GetString(measurementLine));
             
-            // move stream position to the found newline position, if applicable
+            // if EOF, then break early
             if (reader.BaseStream.Position == streamSize)
             {
                 break;
             }
-            lastNewlineInStream = reader.BaseStream.Position - (buffer.Length - nextNewlinePosInChunk - 1);
-            reader.BaseStream.Seek(lastNewlineInStream, SeekOrigin.Begin);
+            
+            // if currently on a newline, then don't seek
+            var nextNewlinePosition = reader.BaseStream.Position - (buffer.Length - nextNewlinePosInChunk - 1);
+            if (reader.BaseStream.Position == nextNewlinePosition)
+            {
+                continue;
+            }
+            reader.BaseStream.Seek(
+                nextNewlinePosition, 
+                SeekOrigin.Begin);
         }
     }
     
