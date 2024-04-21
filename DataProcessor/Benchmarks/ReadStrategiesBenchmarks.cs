@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 namespace DataProcessor.Benchmarks;
 
-[MemoryDiagnoser(false)]
+[MemoryDiagnoser]
 public class ReadStrategiesBenchmarks
 {
     private const string DataFilepath = "../../../../../../../Data/measurements.txt";
@@ -187,6 +187,26 @@ public class ReadStrategiesBenchmarks
     }
     
     [Benchmark]
+    public async Task Read_Bytes_PipelineReader_LineByLine_v2()
+    {
+        await using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
+        while (true)
+        {
+            var readResult = await reader.ReadAsync();
+            var buffer = readResult.Buffer;
+
+            var seqPos = TryReadLineV2(ref buffer);
+
+            reader.AdvanceTo(seqPos, buffer.End);
+            if (readResult.IsCompleted)
+            {
+                break;
+            }
+        }
+    }
+    
+    [Benchmark]
     public void Read_Bytes_Chunks_Seek_To_Newlines()
     {
         using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
@@ -216,7 +236,10 @@ public class ReadStrategiesBenchmarks
                 break;
             }
             
-            stream.Position -= 222 - nextNewlinePosInChunk;
+            // stream.Position -= 222 - nextNewlinePosInChunk;
+            stream.Seek(
+                stream.Position - (222 - nextNewlinePosInChunk),  // 223 - nextNewlinePosInChunk - 1 
+                SeekOrigin.Begin);
             /*
              Drop the call to Seek, change the position directly (improved time by ~1ms)
              stream.Seek(
@@ -240,5 +263,27 @@ public class ReadStrategiesBenchmarks
         buffer = buffer.Slice(buffer.GetPosition(1, position.Value));
 
         return true;
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static SequencePosition TryReadLineV2(ref ReadOnlySequence<byte> buffer)
+    {
+        var newline = Encoding.UTF8.GetBytes(Environment.NewLine).AsSpan();
+
+        var reader = new SequenceReader<byte>(buffer);
+
+        while (!reader.End)
+        {
+            if (!reader.TryReadToAny(out ReadOnlySpan<byte> inputLine, newline, true))
+            {
+                // no more newlines found
+                break;
+            }
+            
+            // measurementLine available to split here
+            // Console.WriteLine(Encoding.Default.GetString(inputLine));
+        }
+        
+        return reader.Position;
     }
 }
