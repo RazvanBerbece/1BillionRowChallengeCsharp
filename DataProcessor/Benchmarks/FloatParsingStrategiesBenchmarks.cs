@@ -10,7 +10,7 @@ public class FloatParsingStrategiesBenchmarks
     public float Float_FromString_Simple()
     {
         const string randomFloatString = "-95.36";
-        return float.Parse(randomFloatString, CultureInfo.InvariantCulture.NumberFormat);;
+        return float.Parse(randomFloatString, CultureInfo.InvariantCulture.NumberFormat);
     }
     
     [Benchmark]

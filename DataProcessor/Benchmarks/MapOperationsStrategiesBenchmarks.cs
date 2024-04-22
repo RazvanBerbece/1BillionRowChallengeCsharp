@@ -8,10 +8,8 @@ namespace DataProcessor.Benchmarks;
 [MemoryDiagnoser]
 public class MapOperationsStrategiesBenchmarks
 {
-    
-    [Params(10000, 32896, 40000, 65792)]
-    public int MapCapacity;
-    
+    private const int MapCapacity = 65792; // anything higher seems to lead to higher mean time and allocated memory
+
     /*
     [Benchmark]
     public void Map_Simple_AddOrEdit_NoCapacity_StringNames()
@@ -70,7 +68,7 @@ public class MapOperationsStrategiesBenchmarks
     }
     */
     
-    [Benchmark]
+    /*[Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_StringNames()
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
@@ -124,7 +122,7 @@ public class MapOperationsStrategiesBenchmarks
                 measurement.Min = Math.Min(measurement.Min, randomMeasurement); 
             }
         }
-    }
+    }*/
     
     [Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_RefMarshal_StringNames()
