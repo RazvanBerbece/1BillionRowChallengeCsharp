@@ -21,7 +21,7 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public void Read_Text_StreamReader_LineByLine()
     {
-        using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        using var fileStream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
             fileStream, 
             encoding: Encoding.UTF8, 
@@ -102,7 +102,7 @@ public class ReadStrategiesBenchmarks
         }
     }*/
     
-    [Benchmark]
+    /*[Benchmark]
     public void Read_Bytes_BinaryReader_IteratorBuilder_LineByLine()
     {
         using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
@@ -135,7 +135,7 @@ public class ReadStrategiesBenchmarks
         {
             // ignored
         }
-    }
+    }*/
     
     /*[Benchmark]
     public void Read_Bytes_BinaryReader_Chunks_LineByLine()
@@ -165,7 +165,7 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine()
     {
-        await using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        await using var stream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
         while (true)
         {
@@ -189,16 +189,17 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine_v2()
     {
-        await using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        await using var stream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
         while (true)
         {
             var readResult = await reader.ReadAsync();
             var buffer = readResult.Buffer;
+            
+            // Parsing included in this function
+            TryReadLineV2(ref buffer, out var pos);
 
-            var seqPos = TryReadLineV2(ref buffer);
-
-            reader.AdvanceTo(seqPos, buffer.End);
+            reader.AdvanceTo(pos, buffer.End);
             if (readResult.IsCompleted)
             {
                 break;
@@ -209,7 +210,7 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public void Read_Bytes_Chunks_Seek_To_Newlines()
     {
-        using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        using var stream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
         var streamSize = stream.Length;
         stream.Position = 0;
         
@@ -266,15 +267,15 @@ public class ReadStrategiesBenchmarks
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static SequencePosition TryReadLineV2(ref ReadOnlySequence<byte> buffer)
+    private static void TryReadLineV2(ref ReadOnlySequence<byte> buffer, out SequencePosition pos)
     {
         var newline = Encoding.UTF8.GetBytes(Environment.NewLine).AsSpan();
-
+        
         var reader = new SequenceReader<byte>(buffer);
 
         while (!reader.End)
         {
-            if (!reader.TryReadToAny(out ReadOnlySpan<byte> inputLine, newline, true))
+            if (!reader.TryReadToAny(out ReadOnlySpan<byte> inputLine, newline))
             {
                 // no more newlines found
                 break;
@@ -283,7 +284,7 @@ public class ReadStrategiesBenchmarks
             // measurementLine available to split here
             // Console.WriteLine(Encoding.Default.GetString(inputLine));
         }
-        
-        return reader.Position;
+
+        pos = reader.Position;
     }
 }

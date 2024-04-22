@@ -3,7 +3,7 @@ using DataProcessor.Domain;
 
 namespace DataProcessor.Benchmarks;
 
-[MemoryDiagnoser(false)]
+[MemoryDiagnoser]
 public class SplitMeasurementLineStrategiesBenchmarks
 {
 
