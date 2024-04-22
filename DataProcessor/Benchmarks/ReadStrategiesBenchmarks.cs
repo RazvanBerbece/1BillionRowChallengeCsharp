@@ -12,6 +12,8 @@ public class ReadStrategiesBenchmarks
     private const string DataFilepath = "../../../../../../../Data/measurements.txt";
     private const string DataSubsetFilepath = "../../../../../../../Data/measurements_subset.txt";
 
+    private static readonly byte[] NewlineBytes = Encoding.UTF8.GetBytes(Environment.NewLine);
+
     // Dynamic Params
     private const int BufferSize = 5120; // 5120 bytes gave the best results so far
 
@@ -269,7 +271,7 @@ public class ReadStrategiesBenchmarks
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void TryReadLineV2(ref ReadOnlySequence<byte> buffer, out SequencePosition pos)
     {
-        var newline = Encoding.UTF8.GetBytes(Environment.NewLine).AsSpan();
+        var newline = NewlineBytes.AsSpan();
         
         var reader = new SequenceReader<byte>(buffer);
 
@@ -281,7 +283,7 @@ public class ReadStrategiesBenchmarks
                 break;
             }
             
-            // measurementLine available to split here
+            // measurement data line available to split here
             // Console.WriteLine(Encoding.Default.GetString(inputLine));
         }
 
