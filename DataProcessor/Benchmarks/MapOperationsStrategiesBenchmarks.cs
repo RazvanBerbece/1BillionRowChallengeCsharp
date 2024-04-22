@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Text;
 using BenchmarkDotNet.Attributes;
 using DataProcessor.Domain;
 using DataProcessor.Extensions;
@@ -9,9 +8,11 @@ namespace DataProcessor.Benchmarks;
 [MemoryDiagnoser]
 public class MapOperationsStrategiesBenchmarks
 {
-    private static readonly (string, MeasurementData) TestMapTypeStringStruct = ("WeatherStationName", new MeasurementData());
-    private static readonly (byte[], MeasurementData) TestMapTypeBytesStruct = ("WeatherStationName"u8.ToArray(), new MeasurementData());
     
+    [Params(10000, 32896, 40000, 65792)]
+    public int MapCapacity;
+    
+    /*
     [Benchmark]
     public void Map_Simple_AddOrEdit_NoCapacity_StringNames()
     {
@@ -67,11 +68,12 @@ public class MapOperationsStrategiesBenchmarks
             }
         }
     }
+    */
     
     [Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_StringNames()
     {
-        var measurementsMap = new Dictionary<string, MeasurementData>(10000);
+        var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
         
         const string stationName = "StationName_";
         
@@ -127,7 +129,7 @@ public class MapOperationsStrategiesBenchmarks
     [Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_RefMarshal_StringNames()
     {
-        var measurementsMap = new Dictionary<string, MeasurementData>(10000);
+        var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
         
         const string stationName = "StationName_";
         

@@ -21,7 +21,7 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public void Read_Text_StreamReader_LineByLine()
     {
-        using var fileStream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
+        using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
             fileStream, 
             encoding: Encoding.UTF8, 
@@ -165,7 +165,7 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine()
     {
-        await using var stream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
+        await using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
         while (true)
         {
@@ -189,7 +189,7 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine_v2()
     {
-        await using var stream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
+        await using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
         while (true)
         {
@@ -210,7 +210,7 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public void Read_Bytes_Chunks_Seek_To_Newlines()
     {
-        using var stream = new FileStream(DataFilepath, FileMode.Open, FileAccess.Read);
+        using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
         var streamSize = stream.Length;
         stream.Position = 0;
         
