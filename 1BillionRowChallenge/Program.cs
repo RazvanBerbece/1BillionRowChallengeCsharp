@@ -5,8 +5,9 @@ Console.WriteLine("The 1 Billion Row Challenge - C# Edition");
 
 // Run benchmarks
 // BenchmarkRunner.Run<SplitMeasurementLineStrategiesBenchmarks>();
-BenchmarkRunner.Run<ReadStrategiesBenchmarks>();
-// BenchmarkRunner.Run<MapOperationsStrategiesBenchmarks>();
+// BenchmarkRunner.Run<ReadStrategiesBenchmarks>();
+// BenchmarkRunner.Run<MapTryGetOperationsStrategiesBenchmarks>();
+BenchmarkRunner.Run<MapHashingOperationsStrategiesBenchmarks>();
 // BenchmarkRunner.Run<FloatParsingStrategiesBenchmarks>();
 
 /*// Dependencies

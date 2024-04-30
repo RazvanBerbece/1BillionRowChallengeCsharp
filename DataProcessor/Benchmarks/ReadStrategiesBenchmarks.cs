@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.IO.MemoryMappedFiles;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using System.IO.Pipelines;
@@ -23,11 +24,16 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public void Read_Text_StreamReader_LineByLine()
     {
-        using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        using var fileStream = new FileStream(
+            DataSubsetFilepath, 
+            FileMode.Open, 
+            FileAccess.Read, 
+            FileShare.ReadWrite, 
+            BufferSize, 
+            FileOptions.SequentialScan);
         using var reader = new StreamReader(
             fileStream, 
-            encoding: Encoding.UTF8, 
-            bufferSize: BufferSize,
+            encoding: Encoding.UTF8,
             detectEncodingFromByteOrderMarks: false);
         while (!reader.EndOfStream)
         {
@@ -167,8 +173,14 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine()
     {
-        await using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
-        var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
+        await using var stream = new FileStream(
+            DataSubsetFilepath, 
+            FileMode.Open, 
+            FileAccess.Read, 
+            FileShare.ReadWrite, 
+            BufferSize, 
+            FileOptions.SequentialScan);
+        var reader = PipeReader.Create(stream, new StreamPipeReaderOptions());
         while (true)
         {
             var readResult = await reader.ReadAsync();
@@ -191,8 +203,14 @@ public class ReadStrategiesBenchmarks
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine_v2()
     {
-        await using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
-        var reader = PipeReader.Create(stream, new StreamPipeReaderOptions(bufferSize: BufferSize));
+        await using var stream = new FileStream(
+            DataSubsetFilepath, 
+            FileMode.Open, 
+            FileAccess.Read, 
+            FileShare.ReadWrite, 
+            BufferSize, 
+            FileOptions.SequentialScan);
+        var reader = PipeReader.Create(stream, new StreamPipeReaderOptions());
         while (true)
         {
             var readResult = await reader.ReadAsync();
@@ -209,10 +227,41 @@ public class ReadStrategiesBenchmarks
         }
     }
     
+    /*[Benchmark]
+    public Task Read_Bytes_PipelineReader_Mmap_LineByLine_v2()
+    {
+        using var stream = new FileStream(
+            DataSubsetFilepath, 
+            FileMode.Open, 
+            FileAccess.Read, 
+            FileShare.ReadWrite, 
+            BufferSize, 
+            FileOptions.SequentialScan);
+        var length = stream.Length;
+        
+        var mmf = MemoryMappedFile.CreateFromFile(DataSubsetFilepath, FileMode.Open);
+        using var accessor = mmf.CreateViewAccessor(0, length);
+        
+        const int localBufferSize = 4028;
+        Span<byte> buffer = stackalloc byte[localBufferSize];
+        for (var i = 0; i < length; ++i)
+        {
+            // 
+        }
+
+        return;
+    }*/
+    
     [Benchmark]
     public void Read_Bytes_Chunks_Seek_To_Newlines()
     {
-        using var stream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
+        using var stream = new FileStream(
+            DataSubsetFilepath, 
+            FileMode.Open, 
+            FileAccess.Read, 
+            FileShare.ReadWrite, 
+            BufferSize, 
+            FileOptions.SequentialScan);
         var streamSize = stream.Length;
         stream.Position = 0;
         

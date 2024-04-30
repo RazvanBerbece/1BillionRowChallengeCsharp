@@ -6,7 +6,7 @@ using DataProcessor.Extensions;
 namespace DataProcessor.Benchmarks;
 
 [MemoryDiagnoser]
-public class MapOperationsStrategiesBenchmarks
+public class MapTryGetOperationsStrategiesBenchmarks
 {
     private const int MapCapacity = 65792; // anything higher seems to lead to higher mean time and allocated memory
 
@@ -181,5 +181,4 @@ public class MapOperationsStrategiesBenchmarks
             }
         }
     }
-    
 }

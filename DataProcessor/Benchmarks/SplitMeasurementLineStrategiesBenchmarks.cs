@@ -6,11 +6,14 @@ namespace DataProcessor.Benchmarks;
 [MemoryDiagnoser]
 public class SplitMeasurementLineStrategiesBenchmarks
 {
-
-    private static readonly string TestString = "TestCityLocation;-12.53";
+    private const string TestString = "TestCityLocation;-12.53";
     private static readonly byte[] TestBytes = "TestCityLocation;-12.53"u8.ToArray();
-    private static readonly byte DelimiterByte = 0x3B;
+    private const byte DelimiterByte = 0x3B;
     
+    // Dynamics
+    public byte[] StationName;
+    public byte[] Measurement;
+
     [Benchmark]
     public string[] Split_String_DefaultStd_ReturnSliceStrings()
     {
@@ -39,6 +42,22 @@ public class SplitMeasurementLineStrategiesBenchmarks
     }
     
     [Benchmark]
+    public SplitCharsTokens Split_String_Span_Range_Split()
+    {
+        var span = TestString.AsSpan();
+        var delimiterSpan = ";".AsSpan();
+        
+        Span<Range> ranges = stackalloc Range[3];
+        span.Split(ranges, delimiterSpan); // will always return 2 ranges. add 1 more for good measure.
+        
+        return new SplitCharsTokens
+        {
+            First = span[ranges[0]].ToArray(),
+            Second = span[ranges[1]].ToArray()
+        };
+    }
+    
+    [Benchmark]
     public SplitBytesTokens Split_Bytes_IndexOf_ReturnSliceBytes()
     {
         var delimiterIndex = Array.IndexOf(TestBytes, DelimiterByte);
@@ -59,5 +78,16 @@ public class SplitMeasurementLineStrategiesBenchmarks
             First = span[..delimiterIndex].ToArray(),
             Second = span[(delimiterIndex + 1)..].ToArray()
         };
+    }
+    
+    [Benchmark]
+    public void Split_Bytes_Span_IndexOf_OutVarSliceBytes()
+    {
+        var span = TestBytes.AsSpan();
+        var delimiterIndex = span.IndexOf(DelimiterByte);
+        
+        // These would be replaces by out var mutations - however out vars are not allowed in benchmarks by BenchmarkDotNet
+        StationName = span[..delimiterIndex].ToArray();
+        Measurement = span[(delimiterIndex + 1)..].ToArray();
     }
 }
