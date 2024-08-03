@@ -19,19 +19,19 @@ public class ReadStrategiesBenchmarks
 
     /*[Params(16, 32, 64, 128, 512)]
     public int ChunkSize;*/
-    
+
     /*[Benchmark]
     public void Read_Text_StreamReader_LineByLine()
     {
         using var fileStream = new FileStream(
-            DataSubsetFilepath, 
-            FileMode.Open, 
-            FileAccess.Read, 
-            FileShare.ReadWrite, 
-            BufferSize, 
+            DataSubsetFilepath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            BufferSize,
             FileOptions.SequentialScan);
         using var reader = new StreamReader(
-            fileStream, 
+            fileStream,
             encoding: Encoding.UTF8,
             detectEncodingFromByteOrderMarks: false);
         while (!reader.EndOfStream)
@@ -39,7 +39,7 @@ public class ReadStrategiesBenchmarks
             var line = reader.ReadLine().AsSpan();
         }
     }*/
-    
+
     /*[Benchmark]
     public void Read_Text_Parallel_ForEach_LineByLine()
     {
@@ -50,7 +50,7 @@ public class ReadStrategiesBenchmarks
             // Split code here
         });
     }*/
-    
+
     /*[Benchmark]
     public void Read_Text_MmapFile_LineByLine()
     {
@@ -62,14 +62,14 @@ public class ReadStrategiesBenchmarks
             var line = sr.ReadLine().AsSpan();
         }
     }*/
-    
+
     /*[Benchmark]
     public async Task Read_Text_StreamReader_Async_LineByLine()
     {
         await using var fileStream = new FileStream(Filepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
-            fileStream, 
-            encoding: Encoding.UTF8, 
+            fileStream,
+            encoding: Encoding.UTF8,
             bufferSize: BufferSize,
             detectEncodingFromByteOrderMarks: false);
         while (!reader.EndOfStream)
@@ -77,23 +77,23 @@ public class ReadStrategiesBenchmarks
             var line = await reader.ReadLineAsync();
         }
     }*/
-    
+
     /*[Benchmark]
     public void Read_Text_StreamReader_IteratorBuilder_LineByLine()
     {
         using var fileStream = new FileStream(Filepath, FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(
-            fileStream, 
-            encoding: Encoding.UTF8, 
+            fileStream,
+            encoding: Encoding.UTF8,
             bufferSize: BufferSize,
             detectEncodingFromByteOrderMarks: false);
-        
+
         var measurementLineCharsIndex = 0;
         // 1 char for delimiter +
         // 10 chars max for recorded temperature +
-        // 100 chars max for station name = 111 chars needed 
+        // 100 chars max for station name = 111 chars needed
         Span<char> measurementLineChars = stackalloc char[111];
-        
+
         while (!reader.EndOfStream)
         {
             var inputChar = reader.Read();
@@ -108,14 +108,14 @@ public class ReadStrategiesBenchmarks
             measurementLineChars[measurementLineCharsIndex++] = (char)inputChar;
         }
     }*/
-    
+
     /*[Benchmark]
     public void Read_Bytes_BinaryReader_IteratorBuilder_LineByLine()
     {
         using var fileStream = new FileStream(DataSubsetFilepath, FileMode.Open, FileAccess.Read);
         using var reader = new BinaryReader(fileStream, new UTF8Encoding());
         reader.BaseStream.Position = 0;
-        
+
         var index = 0;
         // 2 bytes for delimiter +
         // 20 bytes max for recorded temperature +
@@ -143,7 +143,7 @@ public class ReadStrategiesBenchmarks
             // ignored
         }
     }*/
-    
+
     /*[Benchmark]
     public void Read_Bytes_BinaryReader_Chunks_LineByLine()
     {
@@ -151,7 +151,7 @@ public class ReadStrategiesBenchmarks
         using var reader = new BinaryReader(fileStream, new UTF8Encoding());
         var streamTotalLength = reader.BaseStream.Length;
         reader.BaseStream.Position = 0;
-        
+
         Span<byte> finalChunk = stackalloc byte[64];
         Span<byte> measurementLineBytes = stackalloc byte[222];
 
@@ -168,16 +168,16 @@ public class ReadStrategiesBenchmarks
             }
         }
     }*/
-    
+
     /*[Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine()
     {
         await using var stream = new FileStream(
-            DataSubsetFilepath, 
-            FileMode.Open, 
-            FileAccess.Read, 
-            FileShare.ReadWrite, 
-            BufferSize, 
+            DataSubsetFilepath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            BufferSize,
             FileOptions.SequentialScan);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions());
         while (true)
@@ -198,16 +198,16 @@ public class ReadStrategiesBenchmarks
             }
         }
     }*/
-    
+
     /*[Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine_RandomAccess()
     {
         await using var stream = new FileStream(
-            DataSubsetFilepath, 
-            FileMode.Open, 
-            FileAccess.Read, 
-            FileShare.ReadWrite, 
-            BufferSize, 
+            DataSubsetFilepath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            BufferSize,
             FileOptions.RandomAccess);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions());
         while (true)
@@ -228,23 +228,23 @@ public class ReadStrategiesBenchmarks
             }
         }
     }*/
-    
+
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine_v2()
     {
         await using var stream = new FileStream(
-            DataSubsetFilepath, 
-            FileMode.Open, 
-            FileAccess.Read, 
-            FileShare.ReadWrite, 
-            BufferSize, 
+            DataSubsetFilepath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            BufferSize,
             FileOptions.SequentialScan);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions());
         while (true)
         {
             var readResult = await reader.ReadAsync();
             var buffer = readResult.Buffer;
-            
+
             // Parsing included in this function
             TryReadLineV2(ref buffer, out var pos);
 
@@ -255,23 +255,23 @@ public class ReadStrategiesBenchmarks
             }
         }
     }
-    
+
     [Benchmark]
     public async Task Read_Bytes_PipelineReader_LineByLine_v2_RandomAccess()
     {
         await using var stream = new FileStream(
-            DataSubsetFilepath, 
-            FileMode.Open, 
-            FileAccess.Read, 
-            FileShare.ReadWrite, 
-            BufferSize, 
+            DataSubsetFilepath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            BufferSize,
             FileOptions.RandomAccess);
         var reader = PipeReader.Create(stream, new StreamPipeReaderOptions());
         while (true)
         {
             var readResult = await reader.ReadAsync();
             var buffer = readResult.Buffer;
-            
+
             // Parsing included in this function
             TryReadLineV2(ref buffer, out var pos);
 
@@ -282,80 +282,80 @@ public class ReadStrategiesBenchmarks
             }
         }
     }
-    
+
     /*[Benchmark]
     public Task Read_Bytes_PipelineReader_Mmap_LineByLine_v2()
     {
         using var stream = new FileStream(
-            DataSubsetFilepath, 
-            FileMode.Open, 
-            FileAccess.Read, 
-            FileShare.ReadWrite, 
-            BufferSize, 
+            DataSubsetFilepath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            BufferSize,
             FileOptions.SequentialScan);
         var length = stream.Length;
-        
+
         var mmf = MemoryMappedFile.CreateFromFile(DataSubsetFilepath, FileMode.Open);
         using var accessor = mmf.CreateViewAccessor(0, length);
-        
+
         const int localBufferSize = 4028;
         Span<byte> buffer = stackalloc byte[localBufferSize];
         for (var i = 0; i < length; ++i)
         {
-            // 
+            //
         }
 
         return;
     }*/
-    
+
     /*[Benchmark]
     public void Read_Bytes_Chunks_Seek_To_Newlines()
     {
         using var stream = new FileStream(
-            DataSubsetFilepath, 
-            FileMode.Open, 
-            FileAccess.Read, 
-            FileShare.ReadWrite, 
-            BufferSize, 
+            DataSubsetFilepath,
+            FileMode.Open,
+            FileAccess.Read,
+            FileShare.ReadWrite,
+            BufferSize,
             FileOptions.SequentialScan);
         var streamSize = stream.Length;
         stream.Position = 0;
-        
+
         // \n as span
         const byte newlineDelimiter = (byte)'\n';
-        
+
         // allocate 222 / 223 bytes in order to ensure the lazy capture of a newline (abusing specs here a bit)
         Span<byte> buffer = stackalloc byte[223];
 
         while (stream.Read(buffer) > 0)
         {
             // 223 bytes in buffer
-            
+
             // look for next nearest newline from buffer start to end
             var nextNewlinePosInChunk = buffer.IndexOf(newlineDelimiter);
-            
+
             // measurementLine available to split here
             var measurementLine = buffer[..nextNewlinePosInChunk];
             // Console.WriteLine(Encoding.Default.GetString(measurementLine));
-            
+
             // if EOF, then break early
             if (stream.Position == streamSize)
             {
                 break;
             }
-            
+
             // stream.Position -= 222 - nextNewlinePosInChunk;
             stream.Seek(
-                stream.Position - (222 - nextNewlinePosInChunk),  // 223 - nextNewlinePosInChunk - 1 
+                stream.Position - (222 - nextNewlinePosInChunk),  // 223 - nextNewlinePosInChunk - 1
                 SeekOrigin.Begin);
             /*
              Drop the call to Seek, change the position directly (improved time by ~1ms)
              stream.Seek(
-                stream.Position - (222 - nextNewlinePosInChunk),  // 223 - nextNewlinePosInChunk - 1 
+                stream.Position - (222 - nextNewlinePosInChunk),  // 223 - nextNewlinePosInChunk - 1
                 SeekOrigin.Begin);#1#
         }
     }*/
-    
+
     // UTIL METHODS FOR THE VARIOUS APPROACHES
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryReadLine(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> line)
@@ -372,12 +372,12 @@ public class ReadStrategiesBenchmarks
 
         return true;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void TryReadLineV2(ref ReadOnlySequence<byte> buffer, out SequencePosition pos)
     {
         var newline = NewlineBytes.AsSpan();
-        
+
         var reader = new SequenceReader<byte>(buffer);
 
         while (!reader.End)
@@ -387,7 +387,7 @@ public class ReadStrategiesBenchmarks
                 // no more newlines found
                 break;
             }
-            
+
             // measurement data line available to split here
             // Console.WriteLine(Encoding.Default.GetString(inputLine));
         }

@@ -14,9 +14,9 @@ public class MapTryGetOperationsStrategiesBenchmarks
     public void Map_Simple_AddOrEdit_NoCapacity_StringNames()
     {
         var measurementsMap = new Dictionary<string, MeasurementData>();
-        
+
         const string stationName = "StationName_";
-        
+
         // Step 1 - Add new entries
         for (var i = 0; i < 5000; ++i)
         {
@@ -37,10 +37,10 @@ public class MapTryGetOperationsStrategiesBenchmarks
                 measurement.Count =+ 1;
                 measurement.Sum += randomMeasurement;
                 measurement.Max = Math.Max(measurement.Max, randomMeasurement);
-                measurement.Min = Math.Min(measurement.Min, randomMeasurement); 
+                measurement.Min = Math.Min(measurement.Min, randomMeasurement);
             }
         }
-        
+
         // Step 2 - Add new AND update existing entries
         for (var i = 10000; i >= 0; --i)
         {
@@ -61,18 +61,18 @@ public class MapTryGetOperationsStrategiesBenchmarks
                 measurement.Count =+ 1;
                 measurement.Sum += randomMeasurement;
                 measurement.Max = Math.Max(measurement.Max, randomMeasurement);
-                measurement.Min = Math.Min(measurement.Min, randomMeasurement); 
+                measurement.Min = Math.Min(measurement.Min, randomMeasurement);
             }
         }
     }*/
-    
+
     [Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_StringNames()
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
-        
+
         const string stationName = "StationName_";
-        
+
         // Step 1 - Add new entries
         for (var i = 0; i < 5000; ++i)
         {
@@ -90,13 +90,13 @@ public class MapTryGetOperationsStrategiesBenchmarks
             }
             else
             {
-                measurement.Count =+ 1;
+                measurement.Count = +1;
                 measurement.Sum += randomMeasurement;
                 measurement.Max = Math.Max(measurement.Max, randomMeasurement);
-                measurement.Min = Math.Min(measurement.Min, randomMeasurement); 
+                measurement.Min = Math.Min(measurement.Min, randomMeasurement);
             }
         }
-        
+
         // Step 2 - Add new AND update existing entries
         for (var i = 10000; i >= 0; --i)
         {
@@ -114,28 +114,29 @@ public class MapTryGetOperationsStrategiesBenchmarks
             }
             else
             {
-                measurement.Count =+ 1;
+                measurement.Count = +1;
                 measurement.Sum += randomMeasurement;
                 measurement.Max = Math.Max(measurement.Max, randomMeasurement);
-                measurement.Min = Math.Min(measurement.Min, randomMeasurement); 
+                measurement.Min = Math.Min(measurement.Min, randomMeasurement);
             }
         }
     }
-    
+
     [Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_RefMarshal_StringNames()
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
-        
+
         const string stationName = "StationName_";
-        
+
         // Step 1 - Add new entries
         for (var i = 0; i < 5000; ++i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomName = $"{stationName}{i}";
-            
-            ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
+
+            ref var measurement =
+                ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
             if (exists)
             {
                 // The entry existed already, so update the existing ref
@@ -153,14 +154,15 @@ public class MapTryGetOperationsStrategiesBenchmarks
                 measurement.Min = randomMeasurement;
             }
         }
-        
+
         // Step 2 - Add new AND update existing entries
         for (var i = 10000; i >= 0; --i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomName = $"{stationName}{i}";
-            
-            ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
+
+            ref var measurement =
+                ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
             if (exists)
             {
                 // The entry existed already, so update the existing ref
@@ -179,76 +181,76 @@ public class MapTryGetOperationsStrategiesBenchmarks
             }
         }
     }
-    
+
     /*[Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_RefMarshal_StringNames_CustomStructMethod()
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
-        
+
         const string stationName = "StationName_";
-        
+
         // Step 1 - Add new entries
         for (var i = 0; i < 5000; ++i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomName = $"{stationName}{i}";
-            
+
             ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
             measurement.Apply(randomMeasurement, !exists);
         }
-        
+
         // Step 2 - Add new AND update existing entries
         for (var i = 10000; i >= 0; --i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomName = $"{stationName}{i}";
-            
+
             ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
             measurement.Apply(randomMeasurement, !exists);
         }
     }
-    
+
     [Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_RefMarshal_StringNames_CustomStructMethod_Inlined()
     {
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
-        
+
         const string stationName = "StationName_";
-        
+
         // Step 1 - Add new entries
         for (var i = 0; i < 5000; ++i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomName = $"{stationName}{i}";
-            
+
             ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
             measurement.ApplyInlined(randomMeasurement, !exists);
         }
-        
+
         // Step 2 - Add new AND update existing entries
         for (var i = 10000; i >= 0; --i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomName = $"{stationName}{i}";
-            
+
             ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomName, out var exists);
             measurement.ApplyInlined(randomMeasurement, !exists);
         }
     }*/
-    
+
     /*[Benchmark]
     public void Map_Simple_AddOrEdit_WithCapacity_RefMarshal_BytesNames()
     {
         var measurementsMap = new Dictionary<ReadOnlyMemory<byte>, MeasurementData>(MapCapacity);
-        
+
         const string stationName = "StationName_";
-        
+
         // Step 1 - Add new entries
         for (var i = 0; i < 5000; ++i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomNameBytes = Encoding.ASCII.GetBytes($"{stationName}{i}");;
-            
+
             ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomNameBytes, out var exists);
             if (exists)
             {
@@ -267,13 +269,13 @@ public class MapTryGetOperationsStrategiesBenchmarks
                 measurement.Min = randomMeasurement;
             }
         }
-        
+
         // Step 2 - Add new AND update existing entries
         for (var i = 10000; i >= 0; --i)
         {
             var randomMeasurement = Random.Shared.NextFloatRange((float)-99.9, (float)99.9);
             var randomNameBytes = Encoding.ASCII.GetBytes($"{stationName}{i}");;
-            
+
             ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, randomNameBytes, out var exists);
             if (exists)
             {

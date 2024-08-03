@@ -24,7 +24,7 @@ public class OverallStrategyBenchmarks
     private const int MapCapacity = 62851;
     private const int BufferSize = 5120;
 
-    [Benchmark(Baseline = true)]
+    /*[Benchmark(Baseline = true)]
     public void Strategy_Naive()
     {
         // NOTE: Remind of how important it is to use a running average instead of anything else (i.e list of floats, etc.)
@@ -73,12 +73,12 @@ public class OverallStrategyBenchmarks
             }
         }
     }
-    
+
     [Benchmark]
     public void Strategy_Naive_Spans()
     {
         ReadOnlySpan<char> delim = [';'];
-        
+
         // NOTE: Remind of how important it is to use a running average instead of anything else (i.e list of floats, etc.)
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
 
@@ -99,7 +99,7 @@ public class OverallStrategyBenchmarks
         {
             var line = reader.ReadLine();
             var lineSpan = line.AsSpan();
-            
+
             var delimiterIndex = lineSpan.IndexOf(delim);
             var stationName = lineSpan[..delimiterIndex];
             var stationNameAsString = stationName.ToString(); // SLOWDOWN
@@ -126,8 +126,8 @@ public class OverallStrategyBenchmarks
                 measurement.Min = Math.Min(measurement.Min, parsedMeasurementValue);
             }
         }
-    }
-    
+    }*/
+
     [Benchmark]
     public void Strategy_Naive_Spans_LemireFloat()
     {
@@ -151,7 +151,7 @@ public class OverallStrategyBenchmarks
         {
             var line = reader.ReadLine();
             var lineSpan = line.AsSpan();
-            
+
             var delimiterIndex = lineSpan.IndexOf(Delimiter);
             var stationName = lineSpan[..delimiterIndex];
             var stationNameAsString = stationName.ToString(); // SLOWDOWN
@@ -179,13 +179,13 @@ public class OverallStrategyBenchmarks
             }
         }
     }
-    
-    [Benchmark]
+
+    /*[Benchmark]
     public void Strategy_Parallel_Naive_Spans_LemireFloat()
     {
         // NOTE: Remind of how important it is to use a running average instead of anything else (i.e list of floats, etc.)
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
-        
+
         using var fileStream = new FileStream(
             DataSubsetFilepath,
             FileMode.Open,
@@ -198,19 +198,19 @@ public class OverallStrategyBenchmarks
             fileStream,
             Encoding.UTF8,
             false);
-        
+
         Parallel.ForEach(LineGenerator(reader), currentLine =>
             {
                 ProcessParallelMeasurement(ref measurementsMap, currentLine.AsSpan());
-            } 
+            }
         );
-    }
-    
+    }*/
+
     /*[Benchmark]
     public void Strategy_Naive_Spans_LemireFloat_DictCollectionsMarshal()
     {
         ReadOnlySpan<char> delim = [';'];
-        
+
         // NOTE: Remind of how important it is to use a running average instead of anything else (i.e list of floats, etc.)
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
 
@@ -231,7 +231,7 @@ public class OverallStrategyBenchmarks
         {
             var line = reader.ReadLine();
             var lineSpan = line.AsSpan();
-            
+
             var delimiterIndex = lineSpan.IndexOf(delim);
             var stationName = lineSpan[..delimiterIndex];
             var stationNameAsString = stationName.ToString(); // SLOWDOWN
@@ -258,12 +258,12 @@ public class OverallStrategyBenchmarks
             }
         }
     }*/
-    
-    [Benchmark]
+
+    /*[Benchmark]
     public void Strategy_Naive_Spans_LemireFloat_DictCollectionsMarshal_ApplyMethod()
     {
         ReadOnlySpan<char> delim = [';'];
-        
+
         // NOTE: Remind of how important it is to use a running average instead of anything else (i.e list of floats, etc.)
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
 
@@ -284,7 +284,7 @@ public class OverallStrategyBenchmarks
         {
             var line = reader.ReadLine();
             var lineSpan = line.AsSpan();
-            
+
             var delimiterIndex = lineSpan.IndexOf(delim);
             var stationName = lineSpan[..delimiterIndex];
             var stationNameAsString = stationName.ToString(); // SLOWDOWN
@@ -296,12 +296,12 @@ public class OverallStrategyBenchmarks
             measurement.Apply(parsedMeasurementValue, !exists);
         }
     }
-    
+
     [Benchmark]
     public void Strategy_Naive_Spans_LemireFloat_DictCollectionsMarshal_ApplyMethodInlined()
     {
         ReadOnlySpan<char> delim = [';'];
-        
+
         // NOTE: Remind of how important it is to use a running average instead of anything else (i.e list of floats, etc.)
         var measurementsMap = new Dictionary<string, MeasurementData>(MapCapacity);
 
@@ -322,7 +322,7 @@ public class OverallStrategyBenchmarks
         {
             var line = reader.ReadLine();
             var lineSpan = line.AsSpan();
-            
+
             var delimiterIndex = lineSpan.IndexOf(delim);
             var stationName = lineSpan[..delimiterIndex];
             var stationNameAsString = stationName.ToString(); // SLOWDOWN
@@ -333,8 +333,8 @@ public class OverallStrategyBenchmarks
             ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(measurementsMap, stationNameAsString, out var exists);
             measurement.Apply(parsedMeasurementValue, !exists);
         }
-    }
-    
+    }*/
+
     /*[Benchmark]
     public async Task Strategy_Naive_PipeReader()
     {
@@ -362,10 +362,10 @@ public class OverallStrategyBenchmarks
                 break;
             }
         }
-        
+
         await pipeReader.CompleteAsync();
     }
-    
+
     [Benchmark]
     public async Task Strategy_Naive_PipeReader_BytesKeys()
     {
@@ -393,7 +393,7 @@ public class OverallStrategyBenchmarks
                 break;
             }
         }
-        
+
         await pipeReader.CompleteAsync();
     }*/
 
@@ -423,21 +423,22 @@ public class OverallStrategyBenchmarks
     }*/
 
     // UTILS AND PRIVATES
-    private static SequencePosition ParseLines(ref Dictionary<string, MeasurementData> map, ref ReadOnlySequence<byte> buffer)
+    private static SequencePosition ParseLines(ref Dictionary<string, MeasurementData> map,
+        ref ReadOnlySequence<byte> buffer)
     {
         var reader = new SequenceReader<byte>(buffer);
         while (!reader.End)
         {
             if (!reader.TryReadToAny(out ReadOnlySpan<byte> line, Newline))
             {
-                break; 
+                break;
             }
 
             var delimiterIndex = line.IndexOf(DelimiterByte);
-            
+
             var stationName = line[..delimiterIndex];
             var stationMeasurement = line[(delimiterIndex + 1)..];
-            
+
             var stationNameAsString = Encoding.UTF8.GetString(stationName); // SLOWDOWN
             var measurementAsString = Encoding.UTF8.GetString(stationMeasurement); // SLOWDOWN
 
@@ -465,8 +466,9 @@ public class OverallStrategyBenchmarks
 
         return reader.Position;
     }
-    
-    private static SequencePosition ParseLines_BytesKeysMap(ref Dictionary<byte[], MeasurementData> map, ref ReadOnlySequence<byte> buffer)
+
+    private static SequencePosition ParseLines_BytesKeysMap(ref Dictionary<byte[], MeasurementData> map,
+        ref ReadOnlySequence<byte> buffer)
     {
         var reader = new SequenceReader<byte>(buffer);
         Span<byte> floatContainer = stackalloc byte[4];
@@ -474,14 +476,14 @@ public class OverallStrategyBenchmarks
         {
             if (!reader.TryReadToAny(out ReadOnlySpan<byte> line, Newline))
             {
-                break; 
+                break;
             }
 
             var delimiterIndex = line.IndexOf(DelimiterByte);
-            
+
             var stationName = line[..delimiterIndex];
             var stationMeasurement = line[(delimiterIndex + 1)..];
-            
+
             // Minimise amount of copies by only doing them when the span is less than 
             // 4 bytes for a single precision float
             if (stationMeasurement.Length < 4)
@@ -515,7 +517,7 @@ public class OverallStrategyBenchmarks
 
         return reader.Position;
     }
-    
+
     private static void TryReadLineV2(ref ReadOnlySequence<byte> buffer, out SequencePosition pos)
     {
         var measurementsMap = new Dictionary<byte[], MeasurementData>(MapCapacity);
@@ -559,19 +561,20 @@ public class OverallStrategyBenchmarks
         pos = reader.Position;
     }
 
-    private static void ProcessParallelMeasurement(ref Dictionary<string, MeasurementData> map, ReadOnlySpan<char> input)
+    private static void ProcessParallelMeasurement(ref Dictionary<string, MeasurementData> map,
+        ReadOnlySpan<char> input)
     {
         var delimiterIndex = input.IndexOf(Delimiter);
         var stationName = input[..delimiterIndex];
         var stationNameAsString = stationName.ToString(); // SLOWDOWN
         var stationMeasurement = input[(delimiterIndex + 1)..];
-                
+
         var parsedMeasurementValue = FastFloatParser.ParseFloat(stationMeasurement);
-                
+
         ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(map, stationNameAsString, out var exists);
         measurement.Apply(parsedMeasurementValue, !exists);
     }
-    
+
     private static IEnumerable<string> LineGenerator(StreamReader sr)
     {
         while (sr.ReadLine() is { } line)
