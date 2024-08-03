@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1BillionRowChallenge", "1Bi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProcessor", "DataProcessor\DataProcessor.csproj", "{9B002931-2916-4010-BDE6-F75A2CD4CD60}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{1AB42FAE-9140-4901-AA05-6706C0F759A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{9B002931-2916-4010-BDE6-F75A2CD4CD60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9B002931-2916-4010-BDE6-F75A2CD4CD60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B002931-2916-4010-BDE6-F75A2CD4CD60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AB42FAE-9140-4901-AA05-6706C0F759A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AB42FAE-9140-4901-AA05-6706C0F759A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AB42FAE-9140-4901-AA05-6706C0F759A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AB42FAE-9140-4901-AA05-6706C0F759A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{9B002931-2916-4010-BDE6-F75A2CD4CD60} = {1A6F600F-5304-4799-983F-6F5FFF308E2A}

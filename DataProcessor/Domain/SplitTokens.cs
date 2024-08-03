@@ -17,3 +17,9 @@ public struct SplitCharsTokens
     public char[] First;
     public char[] Second;
 }
+
+public ref struct UnsafeSplitBytesTokens
+{
+    public ReadOnlySpan<byte> First;
+    public ReadOnlySpan<byte> Second;
+}
