@@ -1,9 +1,11 @@
+using System.Runtime.InteropServices;
 using System.Text;
+using csFastFloat;
 using DataProcessor.Domain;
 
-namespace DataProcessor.Processors;
+namespace DataProcessor.Processors.Naive;
 
-public class NaiveSpans(string dataFilepath)
+public class NaiveSpansLemireMapMarshall(string dataFilepath)
 {
     private static ReadOnlySpan<char> Delimiter => [';'];
 
@@ -39,25 +41,24 @@ public class NaiveSpans(string dataFilepath)
             var stationNameAsString = stationName.ToString(); // SLOWDOWN
             var stationMeasurement = lineSpan[(delimiterIndex + 1)..];
 
-            var parsedMeasurementValue = float.Parse(stationMeasurement);
+            var parsedMeasurementValue = FastFloatParser.ParseFloat(stationMeasurement);
 
-            // Add or append
-            if (!MeasurementsMap.TryGetValue(stationNameAsString, out var measurement))
+            ref var measurement = ref CollectionsMarshal.GetValueRefOrAddDefault(MeasurementsMap, stationNameAsString, out var exists);
+            if (exists)
             {
-                MeasurementsMap.Add(stationNameAsString, new MeasurementData
-                {
-                    Count = 1,
-                    Min = parsedMeasurementValue,
-                    Max = parsedMeasurementValue,
-                    Sum = parsedMeasurementValue
-                });
-            }
-            else
-            {
+                // The entry existed already, so update the existing ref
                 measurement.Count++;
                 measurement.Sum += parsedMeasurementValue;
                 measurement.Max = Math.Max(measurement.Max, parsedMeasurementValue);
                 measurement.Min = Math.Min(measurement.Min, parsedMeasurementValue);
+            }
+            else
+            {
+                // A new entry was created and the reference returned
+                measurement.Count = 1;
+                measurement.Sum = parsedMeasurementValue;
+                measurement.Max = parsedMeasurementValue;
+                measurement.Min = parsedMeasurementValue;
             }
         }
     }

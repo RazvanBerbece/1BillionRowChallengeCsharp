@@ -1,10 +1,9 @@
 using System.Text;
-using csFastFloat;
 using DataProcessor.Domain;
 
-namespace DataProcessor.Processors;
+namespace DataProcessor.Processors.Naive;
 
-public class NaiveSpansLemire(string dataFilepath)
+public class NaiveSpans(string dataFilepath)
 {
     private static ReadOnlySpan<char> Delimiter => [';'];
 
@@ -40,7 +39,7 @@ public class NaiveSpansLemire(string dataFilepath)
             var stationNameAsString = stationName.ToString(); // SLOWDOWN
             var stationMeasurement = lineSpan[(delimiterIndex + 1)..];
 
-            var parsedMeasurementValue = FastFloatParser.ParseFloat(stationMeasurement);
+            var parsedMeasurementValue = float.Parse(stationMeasurement);
 
             // Add or append
             if (!MeasurementsMap.TryGetValue(stationNameAsString, out var measurement))

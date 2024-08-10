@@ -1,8 +1,7 @@
 using System.Text;
-using csFastFloat;
 using DataProcessor.Domain;
 
-namespace DataProcessor.Processors;
+namespace DataProcessor.Processors.Naive;
 
 public class Naive(string dataFilepath)
 {

@@ -10,9 +10,7 @@ public readonly unsafe struct ByteSpanEquatable(byte* pointer, int length) : IEq
     public ReadOnlySpan<byte> Span => new(pointer, length);
 
     public bool Equals(ByteSpanEquatable other) => Span.SequenceEqual(other.Span);
-
-    // It was that lazy! Did not even used freely available additional entropy from _len in the hash. 
-    // But it worked quite well with the default dataset.
+    
     public override int GetHashCode()
     {
         return length switch
