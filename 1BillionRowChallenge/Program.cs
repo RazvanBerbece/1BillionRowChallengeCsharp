@@ -20,8 +20,9 @@ const string subsetDatasetFilepath = "Data/measurements_subset.txt";
 
 // BYTES READER
 // var measurements = new BytesSpansLemire(fullDatasetFilepath);
-var measurements = new BufferedBytesSpansLemire(fullDatasetFilepath);
+// var measurements = new BufferedBytesSpansLemire(fullDatasetFilepath);
 // var measurements = new BufferedBytesSpansLemireMapMarshall(fullDatasetFilepath);
+var measurements = new BufferedBytesSpansLemireEnhanced(fullDatasetFilepath);
 
 // Run the processing
 var watch = System.Diagnostics.Stopwatch.StartNew();
