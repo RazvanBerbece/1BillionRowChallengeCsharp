@@ -1,12 +1,21 @@
-﻿using DataProcessor;
+﻿using DataProcessor.Processors;
 
 Console.WriteLine("The 1 Billion Row Challenge - C# Edition");
 
-// Dependencies
-var fileManager = new StreamFileManager();
+// Constants
+const string fullDatasetFilepath = "Data/measurements.txt";
+const string subsetDatasetFilepath = "Data/measurements_subset.txt";
 
-// Run actual solution code on full dataset
+// Dependencies
+// If any?
+
+// Processor Initialisations
+// var measurements = new Naive(fullDatasetFilepath);
+// var measurements = new NaiveSpans(fullDatasetFilepath);
+var measurements = new NaiveSpansLemire(fullDatasetFilepath);
+
+// Run the processing
 var watch = System.Diagnostics.Stopwatch.StartNew();
-var measurements = fileManager.ReadTextFromFileInCustomStruct("Data/measurements.txt");
+measurements.Process();
 watch.Stop();
-Console.WriteLine($"Read {measurements.Count} measurements - Finished in {watch.Elapsed.TotalMinutes}m");
+Console.WriteLine($"Read {measurements.MeasurementsMap.Count} measurements - Finished in {watch.Elapsed.TotalMinutes}m");
