@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using csFastFloat;
 using DataProcessor.Domain;
@@ -16,7 +17,8 @@ public class BufferedBytesSpansLemireEnhanced(string dataFilepath)
 
     // compared to BytesSpansLemire, it seems that arrays are keys are S L O W
     public readonly Dictionary<string, MeasurementData> MeasurementsMap = new(MapCapacity);
-
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Process()
     {
         using var fileStream = new FileStream(
